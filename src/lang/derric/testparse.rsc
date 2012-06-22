@@ -30,7 +30,6 @@ import lang::derric::CheckFileFormat;
 import lang::derric::PropagateDefaultsFileFormat;
 import lang::derric::PropagateConstantsFileFormat;
 import lang::derric::AnnotateFileFormat;
-import lang::derric::TransformFileFormat;
 import lang::derric::GenerateDerric;
 import lang::derric::Validator;
 import lang::derric::BuildValidator;
