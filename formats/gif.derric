@@ -1,0 +1,141 @@
+/* Copyright 2011-2012 Netherlands Forensic Institute and
+                       Centrum Wiskunde & Informatica
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+format gif
+extension gif
+
+strings ascii
+sign false
+unit byte
+size 1
+type integer
+endian big
+
+sequence
+  (Header87a Header89a)
+  LogicalScreenDesc
+  (
+    [GraphicControlExtension? TableBasedImage CompressedDataBlock*]
+    [GraphicControlExtension? PlainTextExtension DataBlock*]
+    [ApplicationExtension DataBlock*]
+    [CommentExtension DataBlock*]
+  )
+  ZeroBlock
+  (
+    [GraphicControlExtension? TableBasedImage CompressedDataBlock* ZeroBlock]
+    [GraphicControlExtension? PlainTextExtension DataBlock* ZeroBlock]
+    [ApplicationExtension DataBlock* ZeroBlock]
+    [CommentExtension DataBlock* ZeroBlock]
+  )*
+  Trailer
+
+structures
+Header87a {
+  Signature: "GIF";
+  Version: "87a";
+}
+
+Header89a {
+  Signature: "GIF";
+  Version: "89a";
+}
+
+LogicalScreenDesc {
+  LSWidth: size 2;
+  LSHeight: size 2;
+  GCTFlag: unit bit;
+  ColorResolution: unit bit size 3;
+  SortFlag: unit bit;
+  GCTSize: unit bit size 3;
+  BGColorIndex;
+  PixelAspectRatio;
+  GCT: size GCTFlag*(3*(2^(GCTSize+1)));
+}
+
+GraphicControlExtension {
+  ExtensionIntroducer: 0x21;
+  GraphicControlLabel: 0xf9;
+  BlockSize: 4;
+  Reserved: unit bit size 3;
+  DisposalMethod: expected 0..3 unit bit size 3;
+  UserInputFlag: unit bit;
+  TransparancyFlag: unit bit;
+  DelayTime: size 2;
+  TransparancyIndex;
+  BlockTerminator: 0;
+}
+
+TableBasedImage {
+  Separator: 0x2c;
+  Left: size 2;
+  Top: size 2;
+  Width: size 2;
+  Height: size 2;
+  LCTFlag: unit bit;
+  InterlaceFlag: unit bit;
+  SortFlag: unit bit;
+  Reserved: unit bit size 2;
+  LCTSize: unit bit size 3;
+  LCT: size LCTFlag*(3*(2^(LCTSize+1)));
+  LZWMinimumCodeSize;
+}
+
+PlainTextExtension {
+  ExtensionIntroducer: 0x21;
+  PlainTextLabel: 1;
+  BlockSize: 12;
+  Left: size 2;
+  Top: size 2;
+  Width: size 2;
+  Height: size 2;
+  CellWidth;
+  CellHeight;
+  FGColorIndex;
+  BGColorIndex;
+}
+
+ApplicationExtension {
+  ExtensionIntroducer: 0x21;
+  ExtensionLabel: 0xff;
+  BlockSize: 11;
+  AppIdentifier: type string size 8;
+  AppAuthCode: size 3;
+}
+
+CommentExtension {
+  ExtensionIntroducer: 0x21;
+  CommentLabel: 0xfe;
+}
+
+DataBlock {
+  Length: 1..255;
+  Data: size Length;
+}
+
+CompressedDataBlock = DataBlock {
+  Data: lzw(packing="lsb",
+            codesize="variable",
+            startsize=TableBasedImage.LZWMinimumCodeSize)
+        size Length;
+}
+
+ZeroBlock {
+  Length: 0;
+}
+
+Trailer {
+  marker: 0x003b;
+}

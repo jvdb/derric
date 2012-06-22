@@ -1,0 +1,74 @@
+/* Copyright 2011-2012 Netherlands Forensic Institute and
+                       Centrum Wiskunde & Informatica
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+format test
+extension test
+
+sequence
+  (A B)
+  ([A B] [A? B] [A? B* B] [A B A])
+  A
+  B
+
+structures
+A {
+  a;
+  b: c;
+  c: d size a;
+  d: -5;
+  e: (12-c)^2;
+  f: size c;
+  g: lengthOf(f)+e size b*c unit bit;
+}
+
+B {
+  h: 0, 1, 2, 3;
+  i: lengthOf(h);
+  j: lengthOf(i);
+  k: offset(j);
+}
+
+C {
+  l: 1, "abc", 2;
+  m: lengthOf(l);
+}
+
+D {
+  n;
+  o: (n + 2) + 2;
+  p: 20 / (10 / n);
+  q: 10 - (5 - n);
+  r: (2 * n) * 2;
+  s: (n ^ 2) ^ 3;
+  t: n*(n*5);
+}
+
+E = D {
+  r: 0;
+}
+
+F = E {
+  t: 1;
+  u: 2;
+}
+
+G = E {
+  r: 254;
+  t: 255;
+}
+
+H {
+}

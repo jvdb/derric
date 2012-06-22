@@ -1,0 +1,76 @@
+/* Copyright 2011-2012 Netherlands Forensic Institute and
+                       Centrum Wiskunde & Informatica
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+format test2
+extension test2
+
+sequence
+  Start
+  Middle
+  End
+  Epilogue
+  Extra
+
+structures
+Start {
+  first: lengthOf(second);
+  second;
+  third: offset(third);
+}
+
+Middle = Start {
+  second: {
+  	secondone;
+  	secondtwo;
+  	secondthree;
+  }
+}
+
+End = Middle {
+  secondtwo: {
+    secondtwoone;
+    secondtwotwo;
+  }
+  third: {
+  	thirdone;
+  	thirdtwo;
+  }
+  fourth: lengthOf(Epilogue.thirdtwo);
+}
+
+Epilogue = End {
+  secondone: {
+  	secondoneone;
+  	secondonetwo;
+  }
+  secondtwotwo: {
+    secondtwotwoone;
+    secondtwotwotwo;
+  }
+  thirdtwo: {
+  	thirdtwoone;
+  	thirdtwotwo;
+  	thirdtwothree;
+  }
+  fifth: offset(Extra.secondonetwox);
+}
+
+Extra = End {
+  secondone: {
+    secondoneonex;
+    secondonetwox;
+  }
+}

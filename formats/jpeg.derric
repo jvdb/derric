@@ -1,0 +1,87 @@
+/* Copyright 2011-2012 Netherlands Forensic Institute and
+                       Centrum Wiskunde & Informatica
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+format jpeg
+extension jpeg jpg jfif
+
+unit byte
+size 1
+sign false
+type integer
+endian big
+strings ascii
+
+sequence
+  SOI
+  ([APP0JFIF APP0JFXX?] [APP1 APP2?])
+  !(SOI APP0JFIF APP0JFXX EOI)*
+  EOI
+
+structures
+SOI {
+  marker: 0xFF, 0xD8;
+}
+
+APP0JFIF {
+  marker: 0xFF, 0xE0;
+  length: lengthOf(rgb) + (offset(rgb) - offset(length)) size 2;
+  identifier: "JFIF", 0;
+  version: size 2;
+  units: 0 | 1 | 2;
+  xdensity: size 2;
+  ydensity: size 2;
+  xthumbnail;
+  ythumbnail;
+  rgb: size xthumbnail * (ythumbnail * 3);
+}
+
+APP0JFXX {
+  marker: 0xFF, 0xE0;
+  length: size 2;
+  identifier: "JFXX", 0;
+  thumbnailformat: 0x10 | 0x11 | 0x13;
+  thumbnaildata: size length-(offset(thumbnaildata)-offset(length));
+}
+
+Segment {
+  marker: 0xFF;
+  identifier: 0xD0..0xD7 | 0xDB..0xDC | 0xDF | 0xF0..0xFD;
+  length: size 2;
+  data: size length-(lengthOf(length));
+}
+
+SOS = Segment {
+  identifier: 0xDA;
+  compressedData: jpegdata(huffmantable=DHT.data,
+                           quantizationtable=DQT.data,
+                           terminator=0xFFD9+0xFFC4+0xFFDA,
+                           terminatorsize=16,
+                           includeterminator="false");
+}
+
+APP1 = Segment { identifier: 0xE1; }
+APP2 = Segment { identifier: 0xE2; }
+DQT = Segment { identifier: 0xDE; }
+DHT = Segment { identifier: 0xC4; }
+DRI = Segment { identifier: 0xDD; }
+SOF0 = Segment { identifier: 0xC0; }
+SOF2 = Segment { identifier: 0xC2; }
+APPX = Segment { identifier: 0xE0..0xEF; }
+COM = Segment { identifier: 0xFE; }
+
+EOI {
+  marker: 0xFF, 0xD9;
+}
