@@ -2,10 +2,35 @@
 <html>
   <head>
     <script src="documentup.min.js"></script>
+    <script src="jquery-1.7.2.min.js"></script>
+    <link href="prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="prettify.js"></script>
     <script>
       DocumentUp.document({
         repo: "jvdb/derric",
-        name: "Derric"
+        name: "Derric",
+        afterRender: function() {
+          $("pre code").each(function() {
+              $(this).html( $(this).text());
+              var text = $(this).text();
+              if (!text.match(/(import|generate)/)) {
+                $(this).parent().addClass("prettyprint");
+                $(this).addClass("language-derric");
+              }
+          });
+          $.getScript("prettify.js", function() {
+            $.getScript("lang-derric.js", function() {
+              prettyPrint();
+            });
+          });
+          $("head").append("<link>");
+            css = $("head").children(":last");
+            css.attr({
+              rel:  "stylesheet",
+              type: "text/css",
+              href: "prettify.css"
+            });
+        }
       });
     </script>
   </head>
