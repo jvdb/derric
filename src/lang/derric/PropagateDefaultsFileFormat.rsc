@@ -30,7 +30,7 @@ public FileFormat propagateDefaults(FileFormat format) {
 }
 
 public list[Qualifier] getDefaultQualifiers() {
-	return [unit("byte"), sign(false), endian("little"), strings("ascii"), \type("integer"), size(\value(1))];
+	return [unit("byte"), sign(false), endian("big"), strings("ascii"), \type("integer"), size(\value(1))];
 }
 
 private Field resolveFieldOverrides(FileFormat format, Field field) {
