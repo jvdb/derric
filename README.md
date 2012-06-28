@@ -130,7 +130,7 @@ There are currently two built-in functions that can be used in descriptions and 
       sizeExpression: size constantExpression+lengthOf(empty);
     }
 
-The encodings defined near the top of a Derric description can be overridden at the field level. Examples of this are shown in the fields `localEncodings` and `sizeExpression`. The latter demonstrates the value of `size` can be any expression.
+The encodings defined near the top of a Derric description can be overridden at the field level. Examples of this are shown in the fields `localEncodings` and `sizeExpression`. The latter demonstrates that the value of `size` can be any expression.
 
 Additional examples of the features discussed in this section can be found in the file `/formats/test.derric` in the distribution.
 
@@ -153,7 +153,7 @@ Derric supports a kind of structure inheritance called templates. This way, simi
       }
     }
 
-The inheritance takes place where a structures is named: `TemplateUser = DemoTemplate` states that `TemplateUser` uses `DemoTemplate` as a template and as a result, gets a copy of all of `DemoTemplate`'s fields. Next, it overrides the description of the field `marker` by defining the value as the string `"mrk"`, effectively also changing the size from 4 to 3 bytes. The field `length` is copied but not overridden, so it appears in `TemplateUser` the same way it does in `TemplateBase`. Finally, the field `data` is overridden by two new fields: `key` and `value`. This construct allows template structures to be general and user structures to be specific.
+The inheritance takes place where a structures is named: `TemplateUser = DemoTemplate` states that `TemplateUser` uses `DemoTemplate` as a template and as a result, gets a copy of all of `DemoTemplate`'s fields. Next, it overrides the description of the field `marker` by defining the value as the string `"mrk"`, effectively also changing the size from 4 to 3 bytes. The field `length` is copied but not overridden, so it appears in `TemplateUser` the same way it does in `DemoTemplate`. Finally, the field `data` is overridden by two new fields: `key` and `value`. This construct allows template structures to be general and user structures to be specific.
 
 An additional and extensive example of the features discussed in this section can be found in the file `/formats/test2.derric` in the distribution.
 
@@ -175,7 +175,7 @@ Some values are impractical to describe using a declarative language such as Der
            size 4;
     }
 
-In the `Chunk` structure in the example above, the `crc` field uses the callback mechanism to calculate a crc32 hash value for its specification. All callbacks have a name followed by parentheses. Between the parentheses, optional arguments may be provided in the form `name=value`. Besides strings and numeric value, field references (both local and global) are allowed. Note that the `+` operator in this context is used to specify a list of references. Any other expression is not allowed.
+In the `Chunk` structure in the example above, the `crc` field uses the callback mechanism to calculate a crc32 hash value for its specification. All callbacks have a name followed by parentheses. Between the parentheses, optional arguments may be provided in the form `name=value`. Besides strings and numeric values, field references (both local and global) are allowed. Note that the `+` operator in this context is used to specify a list of references. Any other expression is not allowed.
 
 ## Additional notes ##
 
