@@ -181,7 +181,7 @@ In the `Chunk` structure in the example above, the `crc` field uses the callback
 
 This project is a work in progress. A lot of cleanup and additional language features are planned. Especially the Java runtime library the generated code depends on (located in `/src/org/derric_lang/validator`) is meant purely to allow the code to run independently but is not optimized for speed, scale or clarity. In order to integrate the generated code with a real application, it is recommended to develop a runtime library that takes the application's goals and environment into account.
 
-The callback mechanism is currently still under development and therefor not fully documented, since major changes are still expected.
+The callback mechanism is currently still under development and therefore not fully documented, since major changes are still expected.
 
 A good example of how to use the generated code in combination with the runtime library is shown in the code to the integration tests located in the file `/src/org/derric_lang/validator/TestGeneratedValidators.java`. The method testGeneratedValidator() shows how the generated code can be used in practice.
 
