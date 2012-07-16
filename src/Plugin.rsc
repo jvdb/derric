@@ -22,10 +22,10 @@ import lang::derric::Syntax;
 import util::IDE;
 import ParseTree;
 
-alias ConcreteFormat = lang::derric::Syntax::Format;
-
 public void main() {
-	registerLanguage("Derric", "derric", Format(str input, loc org) {
-		return parse(#start[ConcreteFormat], input, org);
-	});
+	registerLanguage("Derric", "derric", parser);
+}
+
+public start[Format] parser(str input, loc org) {
+	return parse(#start[Format], input, org);
 }
