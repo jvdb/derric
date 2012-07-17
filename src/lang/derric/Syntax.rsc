@@ -33,7 +33,7 @@ keyword DerricKeywords =
 
 lexical Id = ([a-z A-Z _] !<< [a-z A-Z _][a-z A-Z 0-9 _]* !>> [a-z A-Z 0-9 _]) \ DerricKeywords;
 lexical ContentSpecifierId = @category="Todo" Id;
-lexical ExpressionId = @category="Identifier" Id;
+lexical ExpressionId = @category="Identifier" Id id;
 lexical Number = @category="Constant" hex: [0][xX][a-f A-F 0-9]+ !>> [a-f A-F 0-9]
               |  @category="Constant" bin: [0][bB][0-1]+ !>> [0-1]
               |  @category="Constant" oct: [0][oO][0-7]+ !>> [0-7]
@@ -42,7 +42,7 @@ lexical String = @category="Constant" "\"" ![\"]*  "\"";
 lexical Comment = @category="Comment" "/*" CommentChar* "*/";
 lexical CommentChar = ![*] | [*] !>> [/];
 
-start syntax Format = @Foldable "format" Id "extension" Id+ Defaults Sequence Structures;
+start syntax Format = @Foldable "format" Id "extension" Id+ Defaults Sequence seq Structures structs;
 
 syntax Defaults = @Foldable FormatSpecifier*;
 syntax FormatSpecifier = FixedFormatSpecifierKeyword FixedFormatSpecifierValue
@@ -64,12 +64,12 @@ syntax SequenceSymbol = "(" SequenceSymbol+ ")"
                       | Id;
 
 syntax Structures = @Foldable "structures" Structure*;
-syntax Structure = @Foldable StructureHead "{" Field* "}";
-syntax StructureHead = Id
-                     | Id "=" Id;
-syntax Field = Id ":" FieldSpecifier ";"
-             | Id ";"
-             | Id ":" "{" Field* "}";
+syntax Structure = @Foldable StructureHead head "{" Field* fields "}";
+syntax StructureHead = Id name
+                     | Id name "=" Id;
+syntax Field = Id name ":" FieldSpecifier spec ";"
+             | Id name ";"
+             | Id name ":" "{" Field* "}";
 syntax FieldSpecifier = ValueListSpecifier FormatSpecifier*
                       | FormatSpecifier+;
 syntax ValueListSpecifier = ValueModifier* { Expression "," }+

@@ -72,3 +72,14 @@ data Expression = ref(str name)
 	| range(Expression from, Expression to)
 	| negate(Expression exp)
 	| noValue();
+	
+anno loc FileFormat@location;
+anno loc Symbol@location;
+anno loc Qualifier@location;
+anno loc Term@location;
+anno loc Field@location;
+anno loc ContentSpecifier@location;
+anno loc Specification@location;
+anno loc Modifier@location;
+anno loc Expression@location;
+	

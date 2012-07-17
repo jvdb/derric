@@ -21,6 +21,7 @@ import ParseTree;
 import IO;
 import String;
 import List;
+import Message;
 
 import lang::derric::Syntax;
 import lang::derric::FileFormat;
@@ -71,11 +72,20 @@ public void generate(loc path) {
 public FileFormat load(loc path) {
 	FileFormat format = build(parse(#start[Format], path).top);
 	println("Imploded AST:             <format>");
-	list[CheckResult] checkResults = check(format);
-	if (!isEmpty(checkResults)) {
-		for (error(str message) <- checkResults) {
-			println("ERROR: " + message);
+	set[Message] messages = check(format);
+	bool error = false;
+	for (m <- messages) {
+		switch (m) {
+			case error(str msg, loc at): {
+				print("ERROR");
+				error = true;
+			}
+			case warning(str msg, loc at): print("WARNING");
+			case info(str msg, loc at): print("INFO");
 		}
+		println(": " + m.msg + " (at: " + m.at + ")");
+	}
+	if (error) {
 		return;
 	}
 	format = propagateDefaults(format);
