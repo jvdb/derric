@@ -29,7 +29,7 @@ import ParseTree;
 @doc{Produce an AST (FileFormat) based on a provided parse tree (Format).}
 public FileFormat build(Format t) {
 	if ((Format)`format <Id name> extension <Id+ extensions> <Defaults defaults> <Sequence sequence> <Structures structures>` := t) {
-		return format("<name>", makeExtensions(extensions), makeDefaults(defaults), makeSequence(sequence), makeStructures(structures));
+		return format("<name>", makeExtensions(extensions), makeDefaults(defaults), makeSequence(sequence), makeStructures(structures))[@location=t@\loc];
 	}
 }
 

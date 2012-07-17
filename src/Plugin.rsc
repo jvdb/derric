@@ -33,6 +33,7 @@ import lang::derric::Validator;
 import lang::derric::BuildValidator;
 import lang::derric::GenerateJava;
 import lang::derric::GenerateFactoryJava;
+import lang::derric::OutlineFormat;
 import String;
 import IO;
 
@@ -73,13 +74,16 @@ public void main() {
       ast = build(pt.top);
       msgs = check(ast);
       return pt[@messages=msgs];
+    }),
+    
+    outliner(node (start[Format] pt) {
+      return outline(build(pt.top));
     })
   };
   
   registerContributions(DERRIC, contribs);
 	  
 }
-
 
 public FileFormat load(loc path) {
     FileFormat format = build(parse(#start[Format], path).top);
