@@ -18,14 +18,46 @@
 module Plugin
 
 import lang::derric::Syntax;
-
 import util::IDE;
 import ParseTree;
+import Message;
+import lang::derric::FileFormat;
+import lang::derric::BuildFileFormat;
+import lang::derric::DesugarFileFormat;
+//import lang::derric::CheckFileFormat;
+import lang::derric::PropagateDefaultsFileFormat;
+import lang::derric::PropagateConstantsFileFormat;
+import lang::derric::AnnotateFileFormat;
+import lang::derric::GenerateDerric;
+import lang::derric::Validator;
+import lang::derric::BuildValidator;
+import lang::derric::GenerateJava;
+import String;
+import IO;
 
-alias ConcreteFormat = lang::derric::Syntax::Format;
+private str DERRIC = "Derric";
+private str DERRIC_EXT = "derric";
+
+str javaPackageName = "org.derric_lang.validator.generated";
+str javaPathPrefix = "derric/src/" + replaceAll(javaPackageName, ".", "/") + "/";
 
 public void main() {
-	  registerLanguage("Derric", "derric", start[Format](str input, loc org) {
-		      return parse(#start[Format], input, org);
-	  });
+  registerLanguage(DERRIC, DERRIC_EXT, start[Format](str input, loc org) {
+	      return parse(#start[Format], input, org);
+  });
+  
+  contribs = {
+    builder(set[Message] (start[Format] pt) {
+      FileFormat format = build(pt.top);
+      format = annotate(propagateConstants(desugar(propagateDefaults(format))));
+      Validator validator = build(format);
+      writeFile(|project://<javaPathPrefix><toUpperCase(format.name)>Validator.java|, 
+             generate(format.sequence, format.extensions[0], validator, javaPackageName));
+      return {};
+    })
+  
+  };
+  
+  registerContributions(DERRIC, contribs);
+	  
 }
