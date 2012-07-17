@@ -24,7 +24,7 @@ import Message;
 import lang::derric::FileFormat;
 import lang::derric::BuildFileFormat;
 import lang::derric::DesugarFileFormat;
-//import lang::derric::CheckFileFormat;
+import lang::derric::CheckFileFormat;
 import lang::derric::PropagateDefaultsFileFormat;
 import lang::derric::PropagateConstantsFileFormat;
 import lang::derric::AnnotateFileFormat;
@@ -66,8 +66,14 @@ public void main() {
       rel[str, str] mapping = { <s, toUpperCase(f.name) + javaClassSuffix> | f <- generated, s <- f.extensions };
       println("Generating Factory");
        writeFile(|project://<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
-    })]))
+    })])),
   
+  
+    annotator(start[Format] (start[Format] pt) {
+      ast = build(pt.top);
+      msgs = check(ast);
+      return pt[@messages=msgs];
+    })
   };
   
   registerContributions(DERRIC, contribs);

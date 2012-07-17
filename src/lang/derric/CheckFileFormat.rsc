@@ -20,50 +20,49 @@ module lang::derric::CheckFileFormat
 import IO;
 import List;
 import Map;
+import Message;
 
 import lang::derric::FileFormat;
 
-data CheckResult = error(str message);
+public set[Message] check(FileFormat f) = checkUndefinedSequenceNames(f) + checkDuplicateNames(f) + checkUndefinedSourceNames(f);
 
-public list[CheckResult] check(FileFormat f) {
-	return checkUndefinedSequenceNames(f) + checkDuplicateStructureNames(f) + checkUndefinedSourceNames(f) + checkDuplicateFieldNames(f);
+private set[Message] checkDuplicateNames(FileFormat f) {
+    list[Term] structureTerms = [ t | /Term t <- f.terms ];
+    
+    set[str] seen = {};
+    set[Message] errs = {};
+    
+    top-down-break visit (f) {
+      case Term t: {
+        if (t.name in seen) {
+          errs += {error("Duplicate structure name", t@location)};
+        }
+        else {
+          seen += {t.name};
+        }
+        seenFields = {};
+        for (Field f <- t.fields) {
+          if (f.name in seenFields) {
+            errs += {error("Duplicate field name", f@location)};
+          }
+          else {
+            seenFields += {f.name};
+          }
+        }
+      }
+    }
+    return errs;
 }
 
-private list[CheckResult] checkDuplicateStructureNames(FileFormat f) {
-	list[str] structureNames = [ name | /term(str name, list[Field] _) <- f.terms ] + [ name | /term(str name, str source, list[Field] _) <- f.terms ];
-	if (isEmpty(structureNames)) return [];
-	list[str] duplicates = findDuplicates(takeOneFrom(structureNames), []);
-	return for (str s <- duplicates) {
-		append error("Structure name not unique: " + s);
-	}
+
+
+private set[Message] checkUndefinedSequenceNames(FileFormat f) {
+	set[str] structureNames = { t.name | /Term t <- f.terms };
+	return { error("Undefined structure", t@location) | /t:term(str name) <- f.sequence, name notin structureNames };
 }
 
-private list[str] findDuplicates(tuple[str item, list[str] master] t, list[str] duplicates) {
-	if (isEmpty(t.master)) return duplicates;
-	if (t.item in toSet(t.master)) return findDuplicates(takeOneFrom(t.master), duplicates + t.item);
-	else return findDuplicates(takeOneFrom(t.master), duplicates);
+private set[Message] checkUndefinedSourceNames(FileFormat f) {
+	set[str] structureNames = { t.name | /Term t <- f.terms };
+	return { error("Undefined structure", t@location) | /term(_, str s, _) <- f.terms, s notin structureNames };
 }
 
-private list[CheckResult] checkUndefinedSequenceNames(FileFormat f) {
-	set[str] structureNames = { name | /term(str name, list[Field] _) <- f.terms } + { name | /term(str name, str source, list[Field] _) <- f.terms };
-	set[str] sequenceNames = { name | /term(str name) <- f.sequence };
-	set[str] undefinedReferencedNames = sequenceNames - structureNames;
-	return for (str s <- undefinedReferencedNames) {
-		append error("Sequence references undefined structure: " + s);
-	}
-}
-
-private list[CheckResult] checkUndefinedSourceNames(FileFormat f) {
-	set[str] structureNames = { name | /term(str name, list[Field] _) <- f.terms } + { name | /term(str name, str source, list[Field] _) <- f.terms };
-	set[str] sourceNames = { source | /term(str name, str source, list[Field] _) <- f.terms };
-	set[str] undefinedSourceNames = sourceNames - structureNames;
-	return for (str s <- undefinedSourceNames) {
-		append error("Undefined structure referenced as source: " + s);
-	}
-}
-
-private list[CheckResult] checkDuplicateFieldNames(FileFormat ff) {
-	return for (Term t <- ff.terms, !isEmpty(t.fields), str s <- findDuplicates(takeOneFrom([f.name | Field f <- t.fields]), [])) {
-		append error("Field name not unique: " + t.name + "." + s);
-	}
-}
