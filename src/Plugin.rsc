@@ -32,12 +32,15 @@ import lang::derric::GenerateDerric;
 import lang::derric::Validator;
 import lang::derric::BuildValidator;
 import lang::derric::GenerateJava;
+import lang::derric::GenerateFactoryJava;
 import String;
 import IO;
 
 private str DERRIC = "Derric";
 private str DERRIC_EXT = "derric";
 
+str javaClassSuffix = "Validator";
+str javaFileSuffix = ".java";
 str javaPackageName = "org.derric_lang.validator.generated";
 str javaPathPrefix = "derric/src/" + replaceAll(javaPackageName, ".", "/") + "/";
 
@@ -51,13 +54,44 @@ public void main() {
       FileFormat format = build(pt.top);
       format = annotate(propagateConstants(desugar(propagateDefaults(format))));
       Validator validator = build(format);
-      writeFile(|project://<javaPathPrefix><toUpperCase(format.name)>Validator.java|, 
+      writeFile(|project://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, 
              generate(format.sequence, format.extensions[0], validator, javaPackageName));
       return {};
-    })
+    }),
+    
+    popup(menu("Derric", [action("Generate Factory", void (Tree tree, loc selection) {
+      list[str] formats = ["gif", "jpeg", "png"];
+      str formatPathPrefix = "derric/formats/";
+      generated = [ load(|project://<formatPathPrefix><f>.derric|) | f <- formats ];
+      rel[str, str] mapping = { <s, toUpperCase(f.name) + javaClassSuffix> | f <- generated, s <- f.extensions };
+      println("Generating Factory");
+       writeFile(|project://<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
+    })]))
   
   };
   
   registerContributions(DERRIC, contribs);
 	  
+}
+
+
+public FileFormat load(loc path) {
+    FileFormat format = build(parse(#start[Format], path).top);
+    println("Imploded AST:             <format>");
+    //list[CheckResult] checkResults = check(format);
+    //if (!isEmpty(checkResults)) {
+    //    for (error(str message) <- checkResults) {
+    //        println("ERROR: " + message);
+    //    }
+    //    return;
+    //}
+    format = propagateDefaults(format);
+    println("Defaults Propagated AST:  <format>");
+    format = desugar(format);
+    println("Desugared AST:            <format>");
+    format = propagateConstants(format);
+    println("Constants Propagated AST: <format>");
+    format = annotate(format);
+    println("Annotated AST:            <format>");
+    return format;
 }
