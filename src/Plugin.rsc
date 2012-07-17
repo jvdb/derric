@@ -45,6 +45,16 @@ str javaFileSuffix = ".java";
 str javaPackageName = "org.derric_lang.validator.generated";
 str javaPathPrefix = "derric/src/" + replaceAll(javaPackageName, ".", "/") + "/";
 
+public set[loc] getDerrics() {
+  prefix = "derric/formats";
+  result = {};
+  for (path <- listEntries(|project://<prefix>|), endsWith(path, ".derric")) {
+     println(path);
+     result += {|project://<prefix>/<path>|};
+  }
+  return result;
+}
+
 public void main() {
   registerLanguage(DERRIC, DERRIC_EXT, start[Format](str input, loc org) {
 	      return parse(#start[Format], input, org);
@@ -60,13 +70,22 @@ public void main() {
       return {};
     }),
     
-    popup(menu("Derric", [action("Generate Factory", void (Tree tree, loc selection) {
-      list[str] formats = ["gif", "jpeg", "png"];
-      str formatPathPrefix = "derric/formats/";
-      generated = [ load(|project://<formatPathPrefix><f>.derric|) | f <- formats ];
+    popup(menu("Derric", [
+    
+    action("Generate Factory", void (Tree tree, loc selection) {
+      generated = [ load(f) | f <- getDerrics() ];
       rel[str, str] mapping = { <s, toUpperCase(f.name) + javaClassSuffix> | f <- generated, s <- f.extensions };
       println("Generating Factory");
        writeFile(|project://<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
+    }),
+    
+    action("Compile all", void (Tree tree, loc selection) {
+      for (f <- getDerrics()) {
+        FileFormat format = load(f);
+        Validator validator = build(format);
+        writeFile(|project://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, 
+             generate(format.sequence, format.extensions[0], validator, javaPackageName));
+      }
     })])),
   
   
@@ -117,13 +136,6 @@ public start[Format] xrefFormat(start[Format] pt) {
 public FileFormat load(loc path) {
     FileFormat format = build(parse(#start[Format], path).top);
     println("Imploded AST:             <format>");
-    //list[CheckResult] checkResults = check(format);
-    //if (!isEmpty(checkResults)) {
-    //    for (error(str message) <- checkResults) {
-    //        println("ERROR: " + message);
-    //    }
-    //    return;
-    //}
     format = propagateDefaults(format);
     println("Defaults Propagated AST:  <format>");
     format = desugar(format);
