@@ -73,6 +73,7 @@ public void main() {
     annotator(start[Format] (start[Format] pt) {
       ast = build(pt.top);
       msgs = check(ast);
+      pt = xrefFormat(pt);
       return pt[@messages=msgs];
     }),
     
@@ -83,6 +84,34 @@ public void main() {
   
   registerContributions(DERRIC, contribs);
 	  
+}
+
+public start[Format] xrefFormat(start[Format] pt) {
+  table = ();
+  
+  pt.top.structs = visit (pt.top.structs) {
+    case lang::derric::Syntax::Structure x: {
+        table[x.head.name] = (x.head)@\loc;
+        ftable = ();
+        visit (x.fields) {
+          case lang::derric::Syntax::Field f: 
+            ftable["<f.name>"] = f@\loc;
+        }
+        x.fields = visit (x.fields) {
+          case ExpressionId eid => eid[@link=ftable["<eid>"]]
+                   when ftable["<eid>"]?
+        }
+        insert x;
+    }
+  }
+  
+  
+  pt.top.seq = visit (pt.top.seq) {
+    case Id id => id[@link=table[id]]
+       when table[id]? 
+  }
+  
+  return pt;
 }
 
 public FileFormat load(loc path) {
