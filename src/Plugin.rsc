@@ -19,6 +19,7 @@ module Plugin
 
 import lang::derric::Syntax;
 import util::IDE;
+import util::Prompt;
 import ParseTree;
 import Message;
 import lang::derric::FileFormat;
@@ -86,7 +87,14 @@ public void main() {
         writeFile(|project://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, 
              generate(format.sequence, format.extensions[0], validator, javaPackageName));
       }
-    })])),
+    }),
+    
+    edit("Rename structure...", str (Tree pt, loc selection) {
+       newName = prompt("Enter new name: ");
+       return unparse(rename(pt, selection, newName));
+    })
+    
+    ])),
   
   
     annotator(start[Format] (start[Format] pt) {
@@ -101,8 +109,36 @@ public void main() {
     })
   };
   
-  registerContributions(DERRIC, contribs);
-	  
+  registerContributions(DERRIC, contribs);	  
+}
+
+
+public start[Format] rename(start[Format] pt, loc oldLoc, str newName) {
+  try {
+    Id new = parse(#Id, newName);
+    if (treeFound(Id old) := treeAt(#Id, oldLoc, pt)) {
+      pt = visit (pt) {
+        case StructureHead h: {
+          if (h.name == old) {
+            h.name = new;
+          }
+          if (h has super, h.super == old) {
+            h.super = new;
+          }
+          insert h; 
+        }
+      }
+      pt.top.seq = visit (pt.top.seq) {
+        case old => new
+      }
+    }
+    else {
+      alert("Select an identifier first");
+    }
+  }
+  catch _:
+    alert("Not a valid new name");
+  return pt; 
 }
 
 public start[Format] xrefFormat(start[Format] pt) {
@@ -137,6 +173,7 @@ public start[Format] xrefFormat(start[Format] pt) {
   
   return pt;
 }
+
 
 public FileFormat load(loc path) {
     FileFormat format = build(parse(#start[Format], path).top);

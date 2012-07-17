@@ -61,7 +61,7 @@ syntax SequenceSymbol = "(" SequenceSymbol+ ")"
                       | right "!" SequenceSymbol
                       > SequenceSymbol "*"
                       | SequenceSymbol "?"
-                      | Id;
+                      | struct: Id;
 
 syntax Structures = @Foldable "structures" Structure*;
 syntax Structure = @Foldable StructureHead head "{" Field* fields "}";
