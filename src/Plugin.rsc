@@ -130,6 +130,11 @@ public start[Format] xrefFormat(start[Format] pt) {
        when table[id]? 
   }
   
+  pt.top.structs = visit (pt.top.structs) {
+    case StructureHead h => h[super=h.super[@link=table[h.super]]]
+      when h has super, table[h.super]?
+  }
+  
   return pt;
 }
 

@@ -66,7 +66,7 @@ syntax SequenceSymbol = "(" SequenceSymbol+ ")"
 syntax Structures = @Foldable "structures" Structure*;
 syntax Structure = @Foldable StructureHead head "{" Field* fields "}";
 syntax StructureHead = Id name
-                     | Id name "=" Id;
+                     | Id name "=" Id super;
 syntax Field = Id name ":" FieldSpecifier spec ";"
              | Id name ";"
              | Id name ":" "{" Field* "}";
