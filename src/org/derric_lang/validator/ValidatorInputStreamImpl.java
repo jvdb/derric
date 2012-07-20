@@ -115,6 +115,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 	
 	@Override
 	public long skip(long bytes) throws IOException {
+	  _bitsLeft = 0;
 		return _in.skip(bytes);
 	}
 
