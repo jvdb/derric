@@ -47,7 +47,7 @@ public str generate(FileFormat format) {
 			case endian(str name): res += "endian <name>\n";
 			case strings(str encoding): res += "strings <encoding>\n";
 			case \type(str \type): res += "type <\type>\n";
-			case size(Expression count): res += "size <writeExpression(count)>\n";
+			case size(Expression count): res += "size <writeExpression(count, true)>\n";
 		}
 	}
 	if (qualifierWritten) {
