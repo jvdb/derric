@@ -192,7 +192,7 @@ private str writeExpression(Expression exp, bool top) {
 		case offset(str struct, str name): return "offset(<struct>.<escape(name, mapping)>)";
 		case or(Expression l, Expression r): return "<writeExpression(l, false)>|<writeExpression(r, false)>";
 		case range(Expression f, Expression t): return "<top ? "" : "("><writeExpression(f, false)>..<writeExpression(t, false)><top ? "" : ")">";
-		case negate(Expression e): return "-<top ? "" : "("><writeExpression(r)><top ? "" : ")">";
+		case negate(Expression e): return "-<top ? "" : "("><writeExpression(r, false)><top ? "" : ")">";
 	}
 	return "";
 }
