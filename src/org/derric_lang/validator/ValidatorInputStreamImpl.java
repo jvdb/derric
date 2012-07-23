@@ -66,6 +66,9 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 
 	@Override
 	public void reset() throws IOException {
+	  if (_lastRead > _offset) {
+	    _lastRead = _offset;
+	  }
 		_in.reset();
 	}
 
@@ -116,7 +119,12 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 	@Override
 	public long skip(long bytes) throws IOException {
 	  _bitsLeft = 0;
-		return _in.skip(bytes);
+	  long change = _in.skip(bytes);
+	  _offset += change;
+	  if (_offset > _lastRead) {
+	    _lastRead = _offset;
+	  }
+		return change;
 	}
 
 	@Override
