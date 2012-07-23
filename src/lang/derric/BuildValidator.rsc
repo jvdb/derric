@@ -48,9 +48,9 @@ public Validator build(FileFormat format) {
 			Type lenType = integer(true, little(), 31);
 			if ((f@size)? && global() := f@size) globals += gdeclV(lenType, lenName);
 			else statements += ldeclV(lenType, lenName);
-			Expression sizeExp = (qualifiers[0].name == "byte") ? times(qualifiers[5].count, \value(8)) : qualifiers[5].count;
-			statements += calc(lenName, generateExpression(struct, sizeExp));
-			//statements += calc(lenName, generateExpression(struct, qualifiers[5].count));
+			//Expression sizeExp = (qualifiers[0].name == "byte") ? times(qualifiers[5].count, \value(8)) : qualifiers[5].count;
+			//statements += calc(lenName, generateExpression(struct, sizeExp));
+			statements += calc(lenName, generateExpression(struct, qualifiers[5].count));
 			for (Statement s <- frefs[struct,name,size()]) statements += s;
 			if ((f@ref)?) {
 				str bufName = "<struct>_<name>";

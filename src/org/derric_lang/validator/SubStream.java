@@ -28,7 +28,7 @@ public class SubStream {
 			throw new RuntimeException("Can only read data fragments when the stream is byte aligned.");
 		}
 		// TODO: handle bit sizes
-		byte[] data = new byte[(int)size/8];
+		byte[] data = new byte[(int)size];
 		stream.read(data);
 		fragments.add(data);
 	}
