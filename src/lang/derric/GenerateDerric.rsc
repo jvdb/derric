@@ -163,7 +163,7 @@ private str writeSpecification(list[Specification] ls) {
 	return ret;
 }
 
-private str writeSymbol(Symbol s) {
+public str writeSymbol(Symbol s) {
 	switch(s) {
 		case term(str name): return name;
 		case optional(Symbol symbol): return "<writeSymbol(symbol)>?";

@@ -24,6 +24,7 @@ import lang::derric::Validator;
 import lang::derric::GenerateGlobalJava;
 import lang::derric::GenerateSymbolJava;
 import lang::derric::GenerateStructureJava;
+import lang::derric::GenerateDerric;
 
 public str generate(list[Symbol] sequence, str extension, Validator validator, str packageName) {
 	return
@@ -42,7 +43,7 @@ public class <validator.name> extends org.derric_lang.validator.Validator {
 
 	@Override
 	public org.derric_lang.validator.ParseResult tryParseBody() throws java.io.IOException {
-<for (symbol <- sequence) {><generateSymbol(symbol)><}>
+<for (symbol <- sequence) {>_currentSymbol = \"<writeSymbol(symbol)>\";<generateSymbol(symbol)><}>
 		return yes();
 	}
 

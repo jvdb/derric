@@ -23,10 +23,12 @@ public abstract class Validator {
 	private final String _name;
 	protected ValidatorInputStream _input;
 	protected long _startLocation;
+	protected String _currentSymbol;
 
 	public Validator(String name) {
 		_name = name;
 		_startLocation = 0;
+		_currentSymbol = "";
 	}
 
 	public String getName() {
@@ -57,11 +59,11 @@ public abstract class Validator {
 	}
 
 	protected ParseResult yes() {
-		return new ParseResult(true, _input.lastLocation(), _input.lastRead());
+		return new ParseResult(true, _input.lastLocation(), _input.lastRead(), _currentSymbol);
 	}
 
 	protected ParseResult no() {
-		return new ParseResult(false, _input.lastLocation(), _input.lastRead());
+		return new ParseResult(false, _input.lastLocation(), _input.lastRead(), _currentSymbol);
 	}
 	
 	protected boolean noMatch() {

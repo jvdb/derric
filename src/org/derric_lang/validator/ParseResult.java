@@ -21,6 +21,7 @@ public class ParseResult {
 	private boolean _result;
 	private long _lastLocation;
 	private long _lastRead;
+	private String _symbol;
 
 	public boolean isSuccess() {
 		return _result;
@@ -33,16 +34,21 @@ public class ParseResult {
 	public long getLastRead() {
 		return _lastRead;
 	}
-	
-	public ParseResult(boolean result, long lastLocation, long lastRead) {
+
+	public String getSymbol() {
+	  return _symbol;
+	}
+
+	public ParseResult(boolean result, long lastLocation, long lastRead, String symbol) {
 		_result = result;
 		_lastLocation = lastLocation;
 		_lastRead = lastRead;
+		_symbol = symbol;
 	}
 	
 	@Override
 	public String toString() {
-		return "(result:" + _result + ", lastLocation:" + _lastLocation + ", lastRead:" + _lastRead + ")";
+		return "(result:" + _result + ", lastLocation:" + _lastLocation + ", lastRead:" + _lastRead + ", symbol: " + _symbol + ")";
 	}
 
 }
