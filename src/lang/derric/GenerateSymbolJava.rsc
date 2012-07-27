@@ -35,11 +35,11 @@ private int getNextLabel() {
 }
 
 public str generateSymbol(iter(anyOf(set[Symbol] symbols))) {
-	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, true)>break top<label>;\n}\n";
+	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, true)>mergeSubSequence();break top<label>;\n}\n";
 }
 
 public str generateSymbol(anyOf(set[Symbol] symbols)) {
-	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, false)><containsEmptyList(symbols) ? "break top<label>" : "return no()">;\n}\n";
+	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, false)><containsEmptyList(symbols) ? "mergeSubSequence();break top<label>" : "return no()">;\n}\n";
 }
 
 public default str generateSymbol(Symbol symbol) {
@@ -52,19 +52,20 @@ private str generateAnyOfSymbols(set[Symbol] symbols, bool iterate) {
 
 	void generateAnyOfSymbol(Symbol s, bool final) {
 		//println("generating: <s>");
-		str breakTarget = final ? "break top<label>" : "break";
+		str breakTarget = final ? "mergeSubSequence();break top<label>" : "break";
+		str continueStatement = final ? "mergeSubSequence();continue" : "continue";
 		//println(breakTarget);
 		if (res == "") {
 			switch (s) {
-				case term(str name): res += "if (parse<name>()) { <iterate ? "continue" : breakTarget>; }\n";
-				case optional(term(str name)): res += "parse<name>();\n<iterate ? "continue" : breakTarget>;\n";
-				case iter(term(str name)): res += "for (;;) {\nif (parse<name>()) { continue; }\n<breakTarget>;\n}\n";
+				case term(str name): res += "if (parse<name>()) { <iterate ? continueStatement : breakTarget>; }\n";
+				case optional(term(str name)): res += "parse<name>();\n<iterate ? continueStatement : breakTarget>;\n";
+				case iter(term(str name)): res += "for (;;) {\nif (parse<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n";
 			}
 		} else {
 			switch (s) {
 				case term(str name): res = "if (parse<name>()) {\n<res>}\n";
 				case optional(term(str name)): res = "parse<name>();\n<res>";
-				case iter(term(str name)): res = "for (;;) {\nif (parse<name>()) { continue; }\n<breakTarget>;\n}\n<res>";
+				case iter(term(str name)): res = "for (;;) {\nif (parse<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n<res>";
 			}
 		}
 	}
@@ -80,7 +81,7 @@ private str generateAnyOfSymbols(set[Symbol] symbols, bool iterate) {
 			sequence = tail(sequence);
 		}
 		if (res != "") {
-			fin += "_input.mark();\n" + res + "_input.reset();";
+			fin += "_input.mark();\n" + res + "clearSubSequence();_input.reset();";
 		}
 		res = "";
 	}

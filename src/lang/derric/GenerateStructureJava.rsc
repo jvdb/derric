@@ -39,7 +39,7 @@ public str generateStructure(Structure struct) {
 		}
 		i += 1;
 	}
-	ret += "return true; }";
+	ret += "addSubSequence(\"<struct.name>\");return true; }";
 	return ret;
 }
 
