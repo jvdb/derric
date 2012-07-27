@@ -23,7 +23,11 @@ import Set;
 
 import lang::derric::FileFormat;
 
-int label = 0;
+int label;
+
+public void initLabel() {
+	label = 0;
+}
 
 private int getNextLabel() {
 	label += 1;

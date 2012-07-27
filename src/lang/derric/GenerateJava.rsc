@@ -27,6 +27,7 @@ import lang::derric::GenerateStructureJava;
 import lang::derric::GenerateDerric;
 
 public str generate(list[Symbol] sequence, str extension, Validator validator, str packageName) {
+	initLabel();
 	return
 "package <packageName>;
 
