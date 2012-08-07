@@ -27,7 +27,7 @@ strings ascii
 sequence
   SOI
   ([APP0JFIF APP0JFXX?] [APP1 APP2?])
-  !(SOI APP0JFIF APP0JFXX EOI)*
+  (SOS DQT DHT DRI SOF0 SOF2 APPX COM)*
   EOI
 
 structures
@@ -74,7 +74,7 @@ SOS = Segment {
 
 APP1 = Segment { identifier: 0xE1; }
 APP2 = Segment { identifier: 0xE2; }
-DQT = Segment { identifier: 0xDE; }
+DQT = Segment { identifier: 0xDB; }
 DHT = Segment { identifier: 0xC4; }
 DRI = Segment { identifier: 0xDD; }
 SOF0 = Segment { identifier: 0xC0; }
