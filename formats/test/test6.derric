@@ -1,0 +1,12 @@
+format test6
+extension test6
+
+sequence
+
+A
+
+structures
+A {
+  a: 1, 2;
+  b: a;
+}

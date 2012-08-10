@@ -1,0 +1,20 @@
+format test7
+extension test7
+
+sequence
+ab bc
+
+structures
+ab {
+  a: "abc",0;
+  b: size 2;
+  c: size b-2;
+  f: lengthOf(a);
+}
+
+bc = ab {
+  c: {
+    d: "xyz", 0;
+    e: size (b-lengthOf(d))-2;
+  }
+}

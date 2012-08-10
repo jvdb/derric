@@ -231,11 +231,14 @@ private FileFormat fixLengthOf(FileFormat format) {
 	}
 	//println("env: <env>");
 
-	str sname = "";
 	return top-down-break visit (format) {
-		case term(str name, _): sname = name;
-		case lengthOf(str name) => expandLengthOf(sname, name, toList(env[sname,name]), true)
-		case lengthOf(str struct, str name) => expandLengthOf(struct, name, toList(env[struct,name]), false)
+		case t:term(str sname, list[Field] fields): {
+			fs = top-down-break visit (fields) {
+				case lengthOf(str name) => expandLengthOf(sname, name, toList(env[sname,name]), true)
+				case lengthOf(str struct, str name) => expandLengthOf(struct, name, toList(env[struct,name]), false)
+			}
+			insert term(sname, fs); 
+		}
 	}
 }
 
@@ -273,7 +276,7 @@ private list[Field] getFields(FileFormat format, str struct) {
 }
 
 private Expression expandLengthOf(str struct, str head, list[str] tail, bool local) {
-	//println("expanding <sname>.<head>");
+	//println("expanding <struct>.<head> (tail: <tail>, local: <local>)");
 	if (isEmpty(tail)) {
 		if (local) return lengthOf(head);
 		else return lengthOf(struct, head);
