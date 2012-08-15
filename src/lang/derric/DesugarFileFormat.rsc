@@ -322,7 +322,7 @@ private FileFormat normalizeSequence(FileFormat format) {
 			case iter(anyOf(set[Symbol] symbols)) => iter(anyOf({ seq([s]) | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s}))
 			case seq(list[Symbol] symbols) => anyOf({seq(symbols)} + { s | s <- symbols, seq(list[Symbol] syms) := s})
 			case iter(seq(list[Symbol] symbols)) => iter(anyOf({seq(symbols)}))
-			case optional(seq(list[Symbol] symbols)) => anyOf({seq(symbols), []})
+			case optional(seq(list[Symbol] symbols)) => anyOf({seq(symbols), seq([])})
 			case optional(anyOf(set[Symbol] symbols)) => anyOf({ seq([s]) | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s} + {seq([])})
 	}
 }
