@@ -21,6 +21,7 @@ import IO;
 import List;
 import Set;
 
+import lang::derric::AnnotateFileFormat;
 import lang::derric::FileFormat;
 
 int label;
@@ -34,12 +35,12 @@ private int getNextLabel() {
 	return label;
 }
 
-public str generateSymbol(iter(anyOf(set[Symbol] symbols))) {
-	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, true)>mergeSubSequence();break top<label>;\n}\n";
+public str generateSymbol(s:iter(anyOf(set[Symbol] symbols))) {
+	return "top<getNextLabel()>: for (;;) {\n<generateEOFCheck(s@allowEOF)><generateAnyOfSymbols(symbols, true)>mergeSubSequence();break top<label>;\n}\n";
 }
 
-public str generateSymbol(anyOf(set[Symbol] symbols)) {
-	return "top<getNextLabel()>: for (;;) {\n<generateAnyOfSymbols(symbols, false)><containsEmptyList(symbols) ? "mergeSubSequence();break top<label>" : "return no()">;\n}\n";
+public str generateSymbol(s:anyOf(set[Symbol] symbols)) {
+	return "top<getNextLabel()>: for (;;) {\n<generateEOFCheck(s@allowEOF)><generateAnyOfSymbols(symbols, false)><containsEmptyList(symbols) ? "mergeSubSequence();break top<label>" : "return no()">;\n}\n";
 }
 
 public default str generateSymbol(Symbol symbol) {
@@ -95,4 +96,8 @@ private bool containsEmptyList(set[Symbol] symbols) {
 		}
 	}
 	return false;
+}
+
+private str generateEOFCheck(bool allowEOF) {
+	return "if (_input.atEOF()) { return <allowEOF ? "yes" : "no">(); }";
 }

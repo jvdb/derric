@@ -18,9 +18,12 @@
 module lang::derric::AnnotateFileFormat
 
 import IO;
+import List;
 import Set;
 
 import lang::derric::FileFormat;
+
+anno bool Symbol @ allowEOF;
 
 data Reference = local() | global();
 data Dependency = dependency(str name);
@@ -30,6 +33,23 @@ anno Dependency Field @ refdep;
 anno Dependency Field @ sizedep;
 
 public FileFormat annotate(FileFormat format) {
+	return annotateSymbols(annotateFieldReferences(format));
+}
+
+public FileFormat annotateSymbols(FileFormat format) {
+	bool allowEOF = true;
+	for (i <- [size(format.sequence)-1..0]) {
+		if (anyOf(set[Symbol] symbols) := format.sequence[i]) {
+			if (seq([]) notin symbols) {
+				allowEOF = false;
+			}
+		}
+		format.sequence[i]@allowEOF = allowEOF;
+	}
+	return format;
+}
+
+public FileFormat annotateFieldReferences(FileFormat format) {
 	rel[str, str, Reference] refenv = makeReferenceEnvironment(format, true);
 	rel[str, str, Reference] sizeenv = makeReferenceEnvironment(format, false);
 	rel[str, str, Dependency] refdepenv = makeDependencyEnvironment(format, true);
@@ -50,7 +70,7 @@ public FileFormat annotate(FileFormat format) {
 			}
 			set[Dependency] dependency = refdepenv[sname, name];
 			if (size(dependency) == 1) {
-				//println("Adding local forward value reference to <sname>.<name>");
+				//println("Adding local forward value reference to <sname>.<name>")
 				f@refdep = getOneFrom(dependency);
 			}
 			dependency = refsizeenv[sname, name];

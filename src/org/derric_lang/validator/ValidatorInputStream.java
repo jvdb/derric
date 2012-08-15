@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ValidatorInputStream extends InputStream {
-	
-	public abstract boolean isByteAligned();
 
-	public abstract long lastLocation();
+  public abstract boolean isByteAligned();
+  public abstract boolean atEOF() throws IOException;
+
+  public abstract long lastLocation();
 	public abstract long lastRead();
 	public abstract void mark();
 	public abstract void reset() throws IOException;

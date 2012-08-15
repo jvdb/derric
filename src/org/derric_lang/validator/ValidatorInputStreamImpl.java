@@ -48,6 +48,13 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 	public boolean isByteAligned() {
 		return _bitsLeft == 0;
 	}
+	
+	@Override
+	public boolean atEOF() throws IOException {
+	  if (_bitsLeft > 0) return false;
+	  if (_in.available() == 0) return true;
+	  return false;
+	}
 
 	@Override
 	public long lastLocation() {
