@@ -21,7 +21,7 @@ import IO;
 import Set;
 import List;
 import String;
-import Graph;
+import analysis::graphs::Graph;
 
 import lang::derric::FileFormat;
 import lang::derric::Strings;
