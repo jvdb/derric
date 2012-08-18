@@ -35,7 +35,7 @@ public str generateStructure(Structure struct) {
 			case skipValue(Type t): ret += "if (!_input.skipBits(<t.bits>)) return noMatch();";
 			case skipBuffer(str s): ret += "if (_input.skip(<s>) != <s>) return noMatch();";
 			case validate(str v, list[VExpression] l): ret += "<generateValueSet(l, "vs<i>")>if (!vs<i>.equals(<v>)) return noMatch();";
-			case validateContent(str v, str l, str n, map[str, str] configuration, map[str, list[VExpression]] arguments): ret += "<makeStringMap("content1_<i>", configuration)><makeExpressionMap("content2_<i>", arguments)>org.derric_lang.validator.Content content3_<i> = _input.validateContent(<l>, \"<n>\", content1_<i>, content2_<i>); if (!content3_<i>.validated) return noMatch();<v>.fragments.add(content3_<i>.data);<l> = <v>.getLast().length;";
+			case validateContent(str v, str l, str n, map[str, str] configuration, map[str, list[VExpression]] arguments, bool allowEOF): ret += "<makeStringMap("content1_<i>", configuration)><makeExpressionMap("content2_<i>", arguments)>org.derric_lang.validator.Content content3_<i> = _input.validateContent(<l>, \"<n>\", content1_<i>, content2_<i>, allowEOF || <allowEOF>); if (!content3_<i>.validated) return noMatch();<v>.fragments.add(content3_<i>.data);<l> = <v>.getLast().length;";
 		}
 		i += 1;
 	}

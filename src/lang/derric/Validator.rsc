@@ -39,7 +39,7 @@ data Statement =
 | skipValue(Type \type)
 | skipBuffer(str sizeVar)
 | validate(str varName, list[VExpression] expOptions)
-| validateContent(str varName, str lenName, str method, map[str, str] custom, map[str, list[VExpression]] references);
+| validateContent(str varName, str lenName, str method, map[str, str] custom, map[str, list[VExpression]] references, bool allowEOF);
 
 data VExpression =
   var(str name)

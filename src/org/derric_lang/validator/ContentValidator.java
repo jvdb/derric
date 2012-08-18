@@ -21,5 +21,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface ContentValidator {
-	Content validateContent(ValidatorInputStream in, long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments) throws IOException;
+	Content validateContent(ValidatorInputStream in, long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments, boolean allowEOF) throws IOException;
 }

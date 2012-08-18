@@ -169,11 +169,13 @@ public class TestReadValidatorInputStreamImpl {
 	}
 	
 	@Test(expected=EOFException.class) public void readPastEnd() throws IOException {
+    Assert.assertEquals(false, _input.atEOF());
 		readBytes();
+    Assert.assertEquals(true, _input.atEOF());
 		_input.readInteger(8);
 	}
 
-	@Test public void seekPastEnd() throws IOException {
+	@Test(expected=EOFException.class) public void seekPastEnd() throws IOException {
 		readBytes();
 		Assert.assertEquals(false, _input.skipBits(8*102));
 	}
@@ -185,7 +187,9 @@ public class TestReadValidatorInputStreamImpl {
 	}
 
 	@Test(expected=EOFException.class) public void readAfterSeekPastEnd() throws IOException {
+    Assert.assertEquals(false, _input.atEOF());
 		Assert.assertEquals(false, _input.skipBits(8*SIZE * 2));
+    Assert.assertEquals(true, _input.atEOF());
 		_input.readInteger(8);
 	}
 }

@@ -99,5 +99,5 @@ private bool containsEmptyList(set[Symbol] symbols) {
 }
 
 private str generateEOFCheck(bool allowEOF) {
-	return "if (_input.atEOF()) { return <allowEOF ? "yes" : "no">(); }";
+	return "if (_input.atEOF()) { return <allowEOF ? "yes" : "no">(); } allowEOF = <allowEOF>;";
 }

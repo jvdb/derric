@@ -81,6 +81,8 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 
 	@Override
 	public boolean skipBits(long bits) throws IOException {
+    if (atEOF() && (bits > 0)) throw new EOFException();
+
 		if (bits == 0) {
 			return true;
 		}
@@ -125,6 +127,8 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 	
 	@Override
 	public long skip(long bytes) throws IOException {
+    if (atEOF() && (bytes > 0)) throw new EOFException();
+
 	  _bitsLeft = 0;
 	  long change = _in.skip(bytes);
 	  _offset += change;
@@ -160,6 +164,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 
 	@Override
 	public long readInteger(long bits) throws IOException {
+	  if (atEOF()) throw new EOFException();
 		if (bits == 0) throw new RuntimeException("Cannot return value of length=0.");
 		if (bits > 64) throw new RuntimeException("Cannot return value of length>64 in a long.");
 		if (bits == 64 && !_sign)throw new RuntimeException("Cannot return an unsigned value of length=64 in a long.");
@@ -182,7 +187,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 			int count = _in.read(data);
 			_offset += count;
 			_lastRead = _offset;
-			if (count < (bitsReq / 8)) throw new EOFException();
+			//if (count < (bitsReq / 8)) return 0;
 			for (; i < bitsReq / 8; i++) {
 				long tmp = data[i] & 0xFF;
 				ret <<= 8;
@@ -192,7 +197,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 			// cache
 		} else if (bitsReq > 0) {
 			_cache = _in.read();
-			if (_cache == -1) throw new EOFException();
+			if (_cache == -1) return 0;
 			_offset += 1;
 			_lastRead = _offset;
 			_bitsLeft = 8;
@@ -221,30 +226,31 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024*1024);
 		long read = 0l;
 		while (!found) {
-			_in.mark(0);
 			read = readInteger(bits);
 			if (values.equals(read)) {
 				found = true;
+			} else if (atEOF()) {
+			  break;
 			} else {
-				_in.reset();
+			  skip(0-(bits/8));
 				out.write(read());
 				//skipBits(8);
 			}
 		}
-		if (!_includeMarker) {
-			_in.reset();
+		if (!_includeMarker && found) {
+		  skip(0-(bits/8));
 		} else {
 			byte[] marker = ByteBuffer.allocate(8).putLong(read).array();
 			for (int i = 0; i < (bits / 8); i++) {
 				out.write(marker[i]);
 			}
 		}
-		return new Content(true, out.toByteArray());
+		return new Content(found, out.toByteArray());
 	}
 
 	@Override
-	public Content validateContent(long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments) throws IOException {
-		return _cv.validateContent(this, size, name, configuration, arguments);
+	public Content validateContent(long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments, boolean allowEOF) throws IOException {
+		return _cv.validateContent(this, size, name, configuration, arguments, allowEOF);
 	}
 
 	@Override

@@ -35,6 +35,8 @@ import static org.derric_lang.validator.ByteOrder.*;
 
 public class <validator.name> extends org.derric_lang.validator.Validator {
 
+	private boolean allowEOF = false;
+
 <for (g <- validator.globals) {><generateGlobal(g)>\n<}>
 
 	public <validator.name>() { super(\"<validator.format>\"); }

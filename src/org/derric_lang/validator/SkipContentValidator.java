@@ -23,7 +23,7 @@ import java.util.Map;
 public class SkipContentValidator implements ContentValidator {
 
   @Override
-  public Content validateContent(ValidatorInputStream in, long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments) throws IOException {
+  public Content validateContent(ValidatorInputStream in, long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments, boolean allowEOF) throws IOException {
     if (arguments.containsKey("terminator") && arguments.containsKey("terminatorsize") && configuration.containsKey("includeterminator")) {
       ValueSet terminators = new ValueSet();
       List<Object> lt = arguments.get("terminator");
@@ -32,11 +32,12 @@ public class SkipContentValidator implements ContentValidator {
       }
       int terminatorSize = ((Integer) arguments.get("terminatorsize").get(0)).intValue();
       boolean includeTerminator = configuration.get("includeterminator").toLowerCase().equals("true") ? true : false;
-      return in.includeMarker(includeTerminator).readUntil(terminatorSize, terminators);
+      Content content = in.includeMarker(includeTerminator).readUntil(terminatorSize, terminators);
+      return new Content (content.validated || allowEOF, content.data);
     } else if (size >= 0) {
       byte[] data = new byte[(int) size];
-      in.read(data);
-      return new Content(true, data);
+      int read = in.read(data);
+      return new Content((read == size) || allowEOF, data);
     } else {
       throw new RuntimeException("Either the field's size must be defined or a terminator and terminatorsize must be provided.");
     }

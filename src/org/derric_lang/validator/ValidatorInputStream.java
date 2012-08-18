@@ -43,5 +43,5 @@ public abstract class ValidatorInputStream extends InputStream {
 	public abstract ValidatorInputStream includeMarker(boolean includeMarker);
 	public abstract Content readUntil(long bits, ValueSet values) throws IOException;
 
-	public abstract Content validateContent(long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments) throws IOException;
+	public abstract Content validateContent(long size, String name, Map<String, String> configuration, Map<String, List<Object>> arguments, boolean allowEOF) throws IOException;
 }

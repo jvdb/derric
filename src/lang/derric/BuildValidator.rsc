@@ -120,14 +120,14 @@ public Validator build(FileFormat format) {
 			//Expression sizeExp = (qualifiers[0].name == "byte") ? times(qualifiers[5].count, \value(8)) : qualifiers[5].count;
 			statements += calc(lenName, generateExpression(struct, qualifiers[5].count));
 			for (Statement s <- frefs[struct,name,size()]) statements += s;
-			Statement validateStatement = validateContent(valName, lenName, specifier.name, custom, references);
+			Statement validateStatement = validateContent(valName, lenName, specifier.name, custom, references, false);
 			if ((f@refdep)? && dependency(str depName) := f@refdep) frefs += <struct, depName, \value(), validateStatement>;
 			else statements += validateStatement;
 		} else {
 			// handles size=undefined
 			// no forward references are allowed since the content analysis must run order to reach following fields
 			statements += calc(lenName, con(0));
-			statements += validateContent(valName, lenName, specifier.name, custom, references);
+			statements += validateContent(valName, lenName, specifier.name, custom, references, lastField(format, struct, f.name));
 		}
 	}
 
@@ -234,4 +234,15 @@ private Modifier getTerminator(list[Modifier] modifiers) {
 			return m;
 		}
 	}
+}
+
+private bool lastField(FileFormat format, str struct, str field) {
+	for (t <- format.terms, t.name == struct) {
+		for (i <- [0..size(t.fields)-1]) {
+			if (t.fields[i].name == field, i+1 == size(t.fields)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
