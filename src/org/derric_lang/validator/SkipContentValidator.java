@@ -35,9 +35,18 @@ public class SkipContentValidator implements ContentValidator {
       Content content = in.includeMarker(includeTerminator).readUntil(terminatorSize, terminators);
       return new Content (content.validated || allowEOF, content.data);
     } else if (size >= 0) {
-      byte[] data = new byte[(int) size];
-      int read = in.read(data);
-      return new Content((read == size) || allowEOF, data);
+      if (in.available() == 0) {
+        return new Content(false, new byte[0]);
+      } else if (in.available() < size) {
+        int available = in.available();
+        byte[] data = new byte[available];
+        in.read(data);
+        return new Content(false, data);
+      } else {
+        byte[] data = new byte[(int) size];
+        int read = in.read(data);
+        return new Content((read == size) || allowEOF, data);
+      }
     } else {
       throw new RuntimeException("Either the field's size must be defined or a terminator and terminatorsize must be provided.");
     }
