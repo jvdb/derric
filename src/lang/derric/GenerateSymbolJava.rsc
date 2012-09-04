@@ -53,7 +53,7 @@ private str generateAnyOfSymbols(set[Symbol] symbols, bool iterate) {
 
 	void generateAnyOfSymbol(Symbol s, bool final) {
 		//println("generating: <s>");
-		str breakTarget = final ? "mergeSubSequence();break top<label>" : "break";
+		str breakTarget = final ? "mergeSubSequence();<iterate ? "continue" : "break"> top<label>" : "break";
 		str continueStatement = final ? "mergeSubSequence();continue" : "continue";
 		//println(breakTarget);
 		if (res == "") {
