@@ -127,7 +127,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 	
 	@Override
 	public long skip(long bytes) throws IOException {
-    if (atEOF() && (bytes > 0)) throw new EOFException();
+    //if (atEOF() && (bytes > 0)) throw new EOFException();
 
 	  _bitsLeft = 0;
 	  long change = _in.skip(bytes);
