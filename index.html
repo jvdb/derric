@@ -9,7 +9,17 @@
       DocumentUp.document({
         repo: "jvdb/derric",
         name: "Derric",
-        afterRender: function() {
+        afterRender: waitForAvailable
+      });
+	function waitForAvailable() {
+		if ($("#content").length > 0) {
+			fixHighlighting();
+		}
+		else {
+			setTimeout(waitForAvailable, 5);
+		}
+	}
+	function fixHighlighting() {
           $("pre code").each(function() {
               $(this).html( $(this).text());
               var text = $(this).text();
@@ -30,8 +40,7 @@
               type: "text/css",
               href: "prettify.css"
             });
-        }
-      });
+	}
     </script>
   </head>
   <body></body>
