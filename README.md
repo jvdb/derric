@@ -29,7 +29,7 @@ This will show some output and terminate. The result will be a bunch of generate
 
 `/src/org/lang_derric/validator/generated/ValidatorFactory.java` contains the source of a factory that, based on a provided file extension, matches a validator to that extension and returns the associated validator (e.g., if you call ValidatorFactory.create("gif") it will return an instance of GIFValidator. At least, if you've generated the GIFValidator).
 
-`/formats/out/` contains the optimized versions of the input descriptions in Derric, for debug purposes.
+`/src/org/lang_derric/validator/generated` also contains the optimized versions of the input descriptions in Derric, for debug purposes.
 
 A small set of unit and integration tests is provided. After running generateAll() in the Rascal console, refresh the project and run the tests (right-click on the test directory and select "Run As" and then select "JUnit Test"). If all running tests succeed then the installation works.
 
@@ -132,7 +132,7 @@ There are currently two built-in functions that can be used in descriptions and 
 
 The encodings defined near the top of a Derric description can be overridden at the field level. Examples of this are shown in the fields `localEncodings` and `sizeExpression`. The latter demonstrates that the value of `size` can be any expression.
 
-Additional examples of the features discussed in this section can be found in the file `/formats/test.derric` in the distribution.
+Additional examples of the features discussed in this section can be found in the file `/formats/test/test.derric` in the distribution.
 
 #### Templates and Overrides ####
 
@@ -155,7 +155,7 @@ Derric supports a kind of structure inheritance called templates. This way, simi
 
 The inheritance takes place where a structures is named: `TemplateUser = DemoTemplate` states that `TemplateUser` uses `DemoTemplate` as a template and as a result, gets a copy of all of `DemoTemplate`'s fields. Next, it overrides the description of the field `marker` by defining the value as the string `"mrk"`, effectively also changing the size from 4 to 3 bytes. The field `length` is copied but not overridden, so it appears in `TemplateUser` the same way it does in `DemoTemplate`. Finally, the field `data` is overridden by two new fields: `key` and `value`. This construct allows template structures to be general and user structures to be specific.
 
-An additional and extensive example of the features discussed in this section can be found in the file `/formats/test2.derric` in the distribution.
+An additional and extensive example of the features discussed in this section can be found in the file `/formats/test/test2.derric` in the distribution.
 
 #### Content analysis ####
 

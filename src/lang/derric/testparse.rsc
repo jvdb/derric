@@ -38,19 +38,17 @@ import lang::derric::GenerateJava;
 import lang::derric::GenerateFactoryJava;
 
 str javaPackageName = "org.derric_lang.validator.generated";
-str javaPathPrefix = "derric/src/" + replaceAll(javaPackageName, ".", "/") + "/";
+str javaPathPrefix = "/" + replaceAll(javaPackageName, ".", "/") + "/";
 str javaClassSuffix = "Validator";
 str javaFileSuffix = ".java";
 
-str derricPathPrefix = "derric/formats/out/";
 str derricFileSuffix = ".derric";
 
-list[str] formats = ["gif", "jpeg", "png"];
-str formatPathPrefix = "derric/formats/";
+str formatPathPrefix = "../formats/";
 
 public void generateAll() {
-	generated = for (f <- formats) {
-		FileFormat format = load(|project://<formatPathPrefix><f>.derric|);
+	generated = for (f <- enumerateDerricDescriptions()) {
+		FileFormat format = load(|rascal:///<f>|);
 		writeOutput(format);
 		append format;
 	}
@@ -61,7 +59,13 @@ public void generateAll() {
 		}
 	}
 	println("Generating Factory");
-	writeFile(|project://<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
+	writeFile(|rascal:///<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
+}
+
+public list[str] enumerateDerricDescriptions() {
+	return for (f <- |rascal:///<formatPathPrefix>|.ls, isFile(f)) {
+		append f.path;
+	}
 }
 
 public void generate(loc path) {
@@ -100,8 +104,8 @@ public FileFormat load(loc path) {
 }
 
 private void writeOutput(FileFormat format) {
-	writeFile(|project://<derricPathPrefix><format.name><derricFileSuffix>|, lang::derric::GenerateDerric::generate(format));
+	writeFile(|rascal://<javaPathPrefix><format.name><derricFileSuffix>|, lang::derric::GenerateDerric::generate(format));
 	Validator validator = build(format);
 	println("Validator:                <validator>");
-	writeFile(|project://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, lang::derric::GenerateJava::generate(format.sequence, format.extensions[0], validator, javaPackageName));
+	writeFile(|rascal://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, lang::derric::GenerateJava::generate(format.sequence, format.extensions[0], validator, javaPackageName));
 }
