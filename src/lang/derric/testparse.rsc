@@ -46,6 +46,10 @@ str derricFileSuffix = ".derric";
 
 str formatPathPrefix = "../formats/";
 
+public void main(list[str] args) {
+	generateAll();
+}
+
 public void generateAll() {
 	generated = for (f <- enumerateDerricDescriptions()) {
 		FileFormat format = load(|rascal:///<f>|);
