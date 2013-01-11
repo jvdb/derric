@@ -63,6 +63,7 @@ public FileFormat annotateFieldReferences(FileFormat format) {
 				//println("Adding value reference to <sname>.<name>");
 				f@ref = global();
 			} else if (size(annotation) > 0){
+				//println("Adding value reference to <sname>.<name>");
 				f@ref = local();
 			}
 			
@@ -71,11 +72,12 @@ public FileFormat annotateFieldReferences(FileFormat format) {
 				//println("Adding size reference to <sname>.<name>");
 				f@size = global();
 			} else if (size(annotation) > 0) {
+				//println("Adding size reference to <sname>.<name>");
 				f@size = local();
 			}
 			set[Dependency] dependency = refdepenv[sname, name];
 			if (size(dependency) == 1) {
-				//println("Adding local forward value reference to <sname>.<name>")
+				//println("Adding local forward value reference to <sname>.<name>");
 				f@refdep = getOneFrom(dependency);
 			}
 			dependency = refsizeenv[sname, name];
@@ -97,7 +99,7 @@ private rel[str, str, Reference] makeReferenceEnvironment(FileFormat format, boo
 	void makeRef(str struct, str name) {
 		if (struct != sname) {
 			env += <struct, name, global()>;
-		} else if (!isEmpty(order[sname, name])) {
+		} else /*if (!isEmpty(order[sname, name]))*/ {
 			env += <sname, name, local()>;
 		}
 	}
