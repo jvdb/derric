@@ -86,7 +86,7 @@ syntax Expression = Num: Number
                   | Str: String
                   | Ref: ExpressionId
                   | ExtRef: ExpressionId "." ExpressionId
-                  | Bracket: "(" { Expression "," }+ ")"
+                  | Bracket: "(" Expression ")"
                   | LocalCall: BuiltIn "(" ExpressionId ")"
                   | GlobalCall: BuiltIn "(" ExpressionId "." ExpressionId ")"
                   | Neg: "-" Expression
