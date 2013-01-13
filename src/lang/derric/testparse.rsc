@@ -98,7 +98,9 @@ public FileFormat load(loc path) {
 		}
 		println(": " + m.msg + " (at: " + toString(m.at) + ")");
 	}
-	throw "Errors occurred during compilation.";
+	if (error) {
+		throw "Errors occurred during compilation.";
+	}
 	format = propagateDefaults(format);
 	println("Defaults Propagated AST:  <format>");
 	format = desugar(format);

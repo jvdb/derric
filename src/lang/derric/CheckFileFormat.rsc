@@ -21,10 +21,11 @@ import IO;
 import List;
 import Map;
 import Message;
+import Set;
 
 import lang::derric::FileFormat;
 
-public set[Message] check(FileFormat f) = checkUndefinedSequenceNames(f) + checkDuplicateNames(f) + checkUndefinedSourceNames(f);
+public set[Message] check(FileFormat f) = checkUndefinedSequenceNames(f) + checkDuplicateNames(f) + checkUndefinedSourceNames(f) + checkNotEverythingInSequence(f);
 
 private set[Message] checkDuplicateNames(FileFormat f) {
     list[Term] structureTerms = [ t | /Term t <- f.terms ];
@@ -66,3 +67,7 @@ private set[Message] checkUndefinedSourceNames(FileFormat f) {
 	return { error("Undefined structure", t@location) | /term(_, str s, _) <- f.terms, s notin structureNames };
 }
 
+private set[Message] checkNotEverythingInSequence(FileFormat f) {
+	set[str] structs = { t.name | t <- f.terms };
+	return { error("Not symbol resolves to empty set", s@location) | s <- {s1 | /s1:not(term(_)) <- f.sequence, size(structs) == 1} + { sn | /sn:not(anyOf(set[Symbol] symbols)) <- f.sequence, size(structs) == size(symbols)} };
+}
