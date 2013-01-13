@@ -22,6 +22,7 @@ import IO;
 import String;
 import List;
 import Message;
+import ToString;
 
 import lang::derric::Syntax;
 import lang::derric::FileFormat;
@@ -73,8 +74,12 @@ public list[str] enumerateDerricDescriptions() {
 }
 
 public void generate(loc path) {
-	FileFormat format = load(path);
-	writeOutput(format);
+	try {
+		FileFormat format = load(path);
+		writeOutput(format);
+	} catch str s: {
+		println(s);
+	}
 }
 
 public FileFormat load(loc path) {
@@ -91,11 +96,9 @@ public FileFormat load(loc path) {
 			case warning(str msg, loc at): print("WARNING");
 			case info(str msg, loc at): print("INFO");
 		}
-		println(": " + m.msg + " (at: " + m.at + ")");
+		println(": " + m.msg + " (at: " + toString(m.at) + ")");
 	}
-	if (error) {
-		return;
-	}
+	throw "Errors occurred during compilation.";
 	format = propagateDefaults(format);
 	println("Defaults Propagated AST:  <format>");
 	format = desugar(format);
