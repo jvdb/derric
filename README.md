@@ -203,8 +203,10 @@ The following files are in the `/testdata` folder:
 
 Files 1, 2 and 3 are taken from Wikipedia, from the pages on [JPEG](http://en.wikipedia.org/wiki/JPEG), [PNG](http://en.wikipedia.org/wiki/Portable_Network_Graphics) and [GIF](http://en.wikipedia.org/wiki/Graphics_Interchange_Format) respectively and selected as typical examples. Files 4, 5, 6 and 7 are taken from [Exif.org's samples](http://www.exif.org/samples.html) and selected because they contain Exif data in different versions and metadata combinations. Files 8 and 9 are taken from [Fileformat.info's JFIF samples](http://www.fileformat.info/format/jpeg/sample/index.htm) and selected as additional examples of JPEG files containing JFIF metadata.
 
+Additionally, there is an `evalsamples` folder in the `/testdata` folder. This directory contains all samples from an evaluation of the Derric language. The original repository with the evaluation results is called [derric-eval](http://github.com/jvdb/derric-eval). All files originate from Wikipedia.
+
 ## License ##
-Copyright 2011-2012 Netherlands Forensic Institute and Centrum Wiskunde & Informatica
+Copyright 2011-2013 Netherlands Forensic Institute and Centrum Wiskunde & Informatica
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
