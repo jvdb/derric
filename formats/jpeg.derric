@@ -26,17 +26,30 @@ strings ascii
 
 sequence
   SOI
-  ([APP0JFIF APP0JFXX?] [APP1 APP2?])
-  (SOS DQT DHT DRI SOF0 SOF2 APPX COM)*
-  EOI
+  PADDING*
+  COMASC?
+  PADDING*
+  ([APP0JFIF PADDING* APP0JFXX?] [APP1 PADDING* APP2?] APP0Picasa APP0JFXX APP14Adobe APP13Photoshop)?
+  PADDING*
+  ([DQT PADDING*] [DHT PADDING*] [DRI PADDING*] [SOF0 PADDING*] [SOF1 PADDING*] [SOF2 PADDING*] [SOF3 PADDING*] [APPX PADDING*] [COMElanGmk PADDING*])*
+  PADDING*
+  ([DQT PADDING*] [DHT PADDING*] [DRI PADDING*] [SOF0 PADDING*] [SOF1 PADDING*] [SOF2 PADDING*] [SOF3 PADDING*] [APPX PADDING*] [COM PADDING*])*
+  SOS
+  (SOS [DQT PADDING*] [DHT PADDING*] [DRI PADDING*] [SOF0 PADDING*] [SOF1 PADDING*] [SOF2 PADDING*] [SOF3 PADDING*] [APPX PADDING*] [COM PADDING*])*
+  PADDING*
+  EOI?
 
 structures
 SOI {
   marker: 0xFF, 0xD8;
 }
 
+PADDING {
+  padding: 0xFF;
+}
+
 APP0JFIF {
-  marker: 0xFF, 0xE0;
+  marker: 0xE0;
   length: lengthOf(rgb) + (offset(rgb) - offset(length)) size 2;
   identifier: "JFIF", 0;
   version: size 2;
@@ -49,15 +62,36 @@ APP0JFIF {
 }
 
 APP0JFXX {
-  marker: 0xFF, 0xE0;
+  marker: 0xE0;
   length: size 2;
   identifier: "JFXX", 0;
   thumbnailformat: 0x10 | 0x11 | 0x13;
   thumbnaildata: size length-(offset(thumbnaildata)-offset(length));
 }
 
+APP0Picasa = Segment {
+  identifier: 0xE0;
+  data: "Picasa";
+}
+
+APP14Adobe = Segment {
+  identifier: 0xEE;
+  data: {
+    text: "Adobe", 0;
+    rest: size (length-lengthOf(length))-lengthOf(text);
+  }
+}
+
+APP13Photoshop = Segment {
+  identifier: 0xED;
+  data: {
+    text: "Photoshop 3.0", 0;
+    rest: size (length-lengthOf(length))-lengthOf(text);
+  }
+}
+
 Segment {
-  marker: 0xFF;
+  /*marker: 0xFF;*/
   identifier: 0xD0..0xD7 | 0xDB..0xDC | 0xDF | 0xF0..0xFD;
   length: size 2;
   data: size length-(lengthOf(length));
@@ -78,10 +112,21 @@ DQT = Segment { identifier: 0xDB; }
 DHT = Segment { identifier: 0xC4; }
 DRI = Segment { identifier: 0xDD; }
 SOF0 = Segment { identifier: 0xC0; }
+SOF1 = Segment { identifier: 0xC1; }
 SOF2 = Segment { identifier: 0xC2; }
+SOF3 = Segment { identifier: 0xC3; }
 APPX = Segment { identifier: 0xE0..0xEF; }
 COM = Segment { identifier: 0xFE; }
 
+COMElanGmk = COM {
+  data: "SN 165-20106-02, Elan Gmk", 0x0D, 0x0A, "Internal use only", 0x0D, 0x0A, "Not for resale", 0;
+}
+
+COMASC = COM {
+  length: lengthOf(data) size 2;
+  data: "Created by AccuSoft Corp.", 0;
+}
+
 EOI {
-  marker: 0xFF, 0xD9;
+  marker: 0xD9;
 }

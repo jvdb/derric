@@ -38,14 +38,20 @@ public class TestGeneratedValidators {
 	public static Collection<Object[]> getArgument() {
 		File testDir = new File(TEST_DIRECTORY);
 		if (!testDir.isDirectory()) throw new RuntimeException(TEST_DIRECTORY + " must be a directory.");
-		File[] testFiles = testDir.listFiles();
-		ArrayList<Object[]> testFileNames = new ArrayList<Object[]>();
-		for (File f : testFiles) {
-			if (!f.getName().startsWith(".")) {
-				testFileNames.add(new Object[] { f.getName() });
+		return getFileNames(testDir);
+	}
+	
+	private static Collection<Object[]> getFileNames(File node) {
+		ArrayList<Object[]> names = new ArrayList<Object[]>();
+		if (node.getName().startsWith(".")) return names;
+		if (node.isDirectory()) {
+			for (File f : node.listFiles()) {
+				names.addAll(getFileNames(f));
 			}
+		} else {
+			names.add(new Object[] { node.getPath() });
 		}
-		return testFileNames;
+		return names;
 	}
 	
 	public TestGeneratedValidators(String name) {
@@ -59,7 +65,7 @@ public class TestGeneratedValidators {
 	@Test
 	public void testGeneratedValidator() {
 		Validator validator = ValidatorFactory.create(getExtension(_name));
-		ValidatorInputStream stream = ValidatorInputStreamFactory.create(TEST_DIRECTORY + "/" + _name);
+		ValidatorInputStream stream = ValidatorInputStreamFactory.create(_name);
 		validator.setStream(stream);
 		ParseResult result = validator.tryParse();
 		Assert.assertTrue("Parsing failed. " + validator.getClass() + " on " + _name + ". Last read: " + result.getLastRead() + "; Last location: " + result.getLastLocation() + "; Last symbol: " + result.getSymbol() + "; Sequence: " + result.getSequence(), result.isSuccess());

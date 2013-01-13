@@ -27,20 +27,22 @@ endian big
 sequence
   (Header87a Header89a)
   LogicalScreenDesc
+  GraphicControlExtension?
   (
-    [GraphicControlExtension? TableBasedImage CompressedDataBlock*]
-    [GraphicControlExtension? PlainTextExtension DataBlock*]
+    [TableBasedImage CompressedDataBlock*]
+    [PlainTextExtension DataBlock*]
     [ApplicationExtension DataBlock*]
     [CommentExtension DataBlock*]
   )
-  ZeroBlock
+  ZeroBlock?
   (
     [GraphicControlExtension? TableBasedImage CompressedDataBlock* ZeroBlock]
     [GraphicControlExtension? PlainTextExtension DataBlock* ZeroBlock]
     [ApplicationExtension DataBlock* ZeroBlock]
-    [CommentExtension DataBlock* ZeroBlock]
+    [GraphicControlExtension? CommentExtension DataBlock* ZeroBlock]
   )*
-  Trailer
+  [CommentExtension DataBlock]?
+  Trailer?
 
 structures
 Header87a {
@@ -70,7 +72,7 @@ GraphicControlExtension {
   GraphicControlLabel: 0xf9;
   BlockSize: 4;
   Reserved: unit bit size 3;
-  DisposalMethod: expected 0..3 unit bit size 3;
+  DisposalMethod: unit bit size 3;
   UserInputFlag: unit bit;
   TransparancyFlag: unit bit;
   DelayTime: size 2;
@@ -110,9 +112,6 @@ PlainTextExtension {
 ApplicationExtension {
   ExtensionIntroducer: 0x21;
   ExtensionLabel: 0xff;
-  BlockSize: 11;
-  AppIdentifier: type string size 8;
-  AppAuthCode: size 3;
 }
 
 CommentExtension {
@@ -137,5 +136,5 @@ ZeroBlock {
 }
 
 Trailer {
-  marker: 0x003b;
+  marker: 0x3b;
 }

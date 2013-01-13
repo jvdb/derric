@@ -27,13 +27,14 @@ endian big
 sequence
   Signature
   IHDR
-  (cHRM gAMA iCCP sBIT sRGB pHYs sPLT tIME iTXt tEXt zTXt)*
+  (bKGD cHRM gAMA iCCP sBIT sRGB pHYs sPLT tIME iTXt tEXt zTXt prVW mkBF mkTS mkBS mkBT oFFs tpNG tpNg acTL fcTL vpAg pRVW cmOD cpIp meTa)*
   PLTE?
-  (bKGD hIST tRNS pHYs sPLT tIME iTXt tEXt zTXt)*
+  (bKGD hIST tRNS pHYs sPLT tIME iTXt tEXt zTXt vpAg oFFs gIFg cmPP)*
   IDAT
   IDAT*
-  (tIME iTXt tEXt zTXt)*
-  IEND
+  (tIME iTXt tEXt zTXt cmOD cpIp meTa eXIF)*
+  bBPn?
+  IEND?
 
 structures
 Signature { /* Signature, header for all PNG files. */
@@ -137,4 +138,80 @@ tEXt = Chunk {
 
 zTXt = Chunk {
   chunktype: "zTXt";
+}
+
+prVW = Chunk {
+  chunktype: "prVW";
+}
+
+mkBF = Chunk {
+  chunktype: "mkBF";
+}
+
+mkTS = Chunk {
+  chunktype: "mkTS";
+}
+
+mkBS = Chunk {
+  chunktype: "mkBS";
+}
+
+mkBT = Chunk {
+  chunktype: "mkBT";
+}
+
+vpAg = Chunk {
+  chunktype: "vpAg";
+}
+
+oFFs = Chunk {
+  chunktype: "oFFs";
+}
+
+tpNG = Chunk {
+  chunktype: "tpNG";
+}
+
+bBPn = Chunk {
+  chunktype: "bBPn";
+}
+
+cmOD = Chunk {
+  chunktype: "cmOD";
+}
+
+cpIp = Chunk {
+  chunktype: "cpIp";
+}
+
+meTa = Chunk {
+  chunktype: "meTa";
+}
+
+eXIF = Chunk {
+  chunktype: "eXIF";
+}
+
+gIFg = Chunk {
+  chunktype: "gIFg";
+}
+
+tpNg = Chunk {
+  chunktype: "tpNg";
+}
+
+cmPP = Chunk {
+  chunktype: "cmPP";
+}
+
+acTL = Chunk {
+  chunktype: "acTL";
+}
+
+fcTL = Chunk {
+  chunktype: "fcTL";
+}
+
+pRVW = Chunk {
+  chunktype: "pRVW";
 }
