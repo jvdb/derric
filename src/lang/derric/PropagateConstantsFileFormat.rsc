@@ -99,6 +99,13 @@ public FileFormat propagateConstants(FileFormat format) {
 				insert(field(name, modifiers, qualifiers, getOneFrom(specExp)));
 			}
 		}
+		case field(str name, list[Modifier] modifiers, list[Qualifier] qualifiers, ContentSpecifier specifier): {
+			sizeExp = { si | s(si) <- env[sname,name] };
+			if (size(sizeExp) == 1) {
+				qualifiers[5].count = getOneFrom(sizeExp);
+				insert(field(name, modifiers, qualifiers, specifier));
+			}
+		}
 	}
 }
 
@@ -107,7 +114,9 @@ private rel[str sname, str fname, EType etype] makeEnvironment(FileFormat format
 	for (t <- format.terms, f <- t.fields) {
 		switch(f) {
 			case field(str name, _, list[Qualifier] qualifiers, Expression specification):
-				env += { < t.name, name, v(specification) >, < t.name, name, s(qualifiers[5].count) > }; 
+				env += { < t.name, name, v(specification) >, < t.name, name, s(qualifiers[5].count) > };
+			case field(str name, _, list[Qualifier] qualifiers, ContentSpecifier specifier):
+				env += { < t.name, name, s(qualifiers[5].count) > };
 		}
 	}
 	
