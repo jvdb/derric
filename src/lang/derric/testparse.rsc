@@ -47,14 +47,12 @@ str derricFileSuffix = ".derric";
 
 str formatPathPrefix = "../formats/";
 
-public void main(list[str] args) {
-	generateAll();
-}
-
 public void generateAll() {
 	generated = for (f <- enumerateDerricDescriptions()) {
 		FileFormat format = load(|rascal:///<f>|);
-		writeOutput(format);
+		writeDerric(format);
+		Validator validator = build(format);
+		writeJava(format, validator);
 		append format;
 	}
 	rel[str, str] mapping = { };
@@ -67,7 +65,7 @@ public void generateAll() {
 	writeFile(|rascal:///<javaPathPrefix><javaClassSuffix>Factory<javaFileSuffix>|, generate(mapping));
 }
 
-public list[str] enumerateDerricDescriptions() {
+private list[str] enumerateDerricDescriptions() {
 	return for (f <- |rascal:///<formatPathPrefix>|.ls, isFile(f)) {
 		append f.path;
 	}
@@ -76,13 +74,15 @@ public list[str] enumerateDerricDescriptions() {
 public void generate(loc path) {
 	try {
 		FileFormat format = load(path);
-		writeOutput(format);
+        writeDerric(format);
+        Validator validator = build(format);
+        writeJava(format, validator);
 	} catch str s: {
 		println(s);
 	}
 }
 
-public FileFormat load(loc path) {
+private FileFormat load(loc path) {
 	FileFormat format = build(parse(#start[Format], path).top);
 	println("Imploded AST:             <format>");
 	set[Message] messages = check(format);
@@ -112,9 +112,11 @@ public FileFormat load(loc path) {
     return format;
 }
 
-private void writeOutput(FileFormat format) {
-	writeFile(|rascal://<javaPathPrefix><format.name><derricFileSuffix>|, lang::derric::GenerateDerric::generate(format));
-	Validator validator = build(format);
-	println("Validator:                <validator>");
-	writeFile(|rascal://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, lang::derric::GenerateJava::generate(format.sequence, format.extensions[0], validator, javaPackageName));
+private void writeDerric(FileFormat format) {
+    writeFile(|rascal://<javaPathPrefix><format.name><derricFileSuffix>|, lang::derric::GenerateDerric::generate(format));
+}
+
+private void writeJava(FileFormat format, Validator validator) {
+    println("Validator:                <validator>");
+    writeFile(|rascal://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, lang::derric::GenerateJava::generate(format.sequence, format.extensions[0], validator, javaPackageName));
 }
