@@ -37,6 +37,7 @@ import lang::derric::Validator;
 import lang::derric::BuildValidator;
 import lang::derric::GenerateJava;
 import lang::derric::GenerateFactoryJava;
+import lang::derric::ExecuteValidator;
 
 str javaPackageName = "org.derric_lang.validator.generated";
 str javaPathPrefix = "/" + replaceAll(javaPackageName, ".", "/") + "/";
@@ -78,11 +79,22 @@ public void generate(loc path) {
         Validator validator = build(format);
         writeJava(format, validator);
 	} catch str s: {
-		println(s);
+		println("Error: <s>");
 	}
 }
 
-private FileFormat load(loc path) {
+public void execute(loc derricPath, loc inputPath) {
+    try {
+        FileFormat format = load(derricPath);
+        Validator validator = build(format);
+        println("Validator:                <validator>");
+        println("Result:                   <executeValidator(validator.format, format.sequence, validator.structs, inputPath)>");
+    } catch str s: {
+        println("Error: <s>");
+    }
+}
+
+public FileFormat load(loc path) {
 	FileFormat format = build(parse(#start[Format], path).top);
 	println("Imploded AST:             <format>");
 	set[Message] messages = check(format);

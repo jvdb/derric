@@ -44,7 +44,7 @@ data Statement =
 data VExpression =
   var(str name)
 | con(int intValue)
-| con(real realValue)
+//| con(real realValue)
 | sub(VExpression lhs, VExpression rhs)
 | add(VExpression lhs, VExpression rhs)
 | fac(VExpression lhs, VExpression rhs)
