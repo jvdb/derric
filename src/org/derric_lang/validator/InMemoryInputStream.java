@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 public class InMemoryInputStream extends InputStream {
 
@@ -30,12 +31,20 @@ public class InMemoryInputStream extends InputStream {
 	private final int _size;
 
 	public InMemoryInputStream(String path) {
+		this(new File(path));
+	}
+	
+	public InMemoryInputStream(URI path) {
+		this(new File(path));
+	}
+	
+	private InMemoryInputStream(File file) {
 		try {
-			long size = new File(path).length();
+			long size = file.length();
 			if (size > Integer.MAX_VALUE) throw new RuntimeException("Files larger than 2GB are not supported.");
 			_size = (int) size;
 			_contents = new byte[_size];
-			FileInputStream input = new FileInputStream(path);
+			FileInputStream input = new FileInputStream(file);
 			input.read(_contents);
 			input.close();
 			_offset = 0;
@@ -43,6 +52,7 @@ public class InMemoryInputStream extends InputStream {
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
+	
 	}
 	
 	@Override

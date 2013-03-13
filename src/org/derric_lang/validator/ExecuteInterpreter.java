@@ -35,14 +35,14 @@ public class ExecuteInterpreter {
 		_types = TypeFactory.getInstance();
 	}
 	
-	public IValue executeValidator(IString format, IList sequence, IList structs, ISourceLocation inputPath) {
+	public IValue executeValidator(IString format, IList sequence, IList structs, IList globals, ISourceLocation inputPath) {
 		if (sequence.isEmpty()) throw new RuntimeException("Argument sequence may not be empty.");
 		if (structs.isEmpty()) throw new RuntimeException("Argument structs may not be empty.");
 
 		try {
 			@SuppressWarnings("unchecked")
-			Interpreter interpreter = new Interpreter(format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"));
-			//interpreter.setStream(ValidatorInputStreamFactory.create(inputPath.getURI().toString()));
+			Interpreter interpreter = new Interpreter(format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"), (List<Structure>)instantiate(globals, PACKAGE + ".structure"));
+			interpreter.setStream(ValidatorInputStreamFactory.create(inputPath.getURI()));
 			ParseResult result = interpreter.tryParse();
 			return _types.boolType().make(_values, result.isSuccess());
 		} catch(Exception e) {

@@ -88,7 +88,7 @@ public void execute(loc derricPath, loc inputPath) {
         FileFormat format = load(derricPath);
         Validator validator = build(format);
         println("Validator:                <validator>");
-        println("Result:                   <executeValidator(validator.format, format.sequence, validator.structs, inputPath)>");
+        println("Result:                   <executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputPath)>");
     } catch str s: {
         println("Error: <s>");
     }

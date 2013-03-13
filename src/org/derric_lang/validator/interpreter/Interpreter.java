@@ -11,10 +11,16 @@ import org.derric_lang.validator.interpreter.symbol.Symbol;
 public class Interpreter extends Validator {
 	
 	private final String _format;
+	private final List<Symbol> _sequence;
+	private final List<Structure> _structures;
+	private final List<Structure> _globals;
 
-	public Interpreter(String format, List<Symbol> sequence, List<Structure> structures) {
+	public Interpreter(String format, List<Symbol> sequence, List<Structure> structures, List<Structure> globals) {
 		super(format);
 		_format = format;
+		_sequence = sequence;
+		_structures = structures;
+		_globals = globals;
 	}
 
 	@Override

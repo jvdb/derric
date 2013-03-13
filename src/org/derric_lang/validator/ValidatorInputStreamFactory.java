@@ -16,12 +16,18 @@
 
 package org.derric_lang.validator;
 
+import java.net.URI;
+
 public class ValidatorInputStreamFactory {
 
 	private ValidatorInputStreamFactory() {
 	}
 
 	public static ValidatorInputStream create(String path) {
+		return new ValidatorInputStreamImpl(new InMemoryInputStream(path), new SkipContentValidator());
+	}
+	
+	public static ValidatorInputStream create(URI path) {
 		return new ValidatorInputStreamImpl(new InMemoryInputStream(path), new SkipContentValidator());
 	}
 }
