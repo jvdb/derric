@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.derric_lang.validator.interpreter.Interpreter;
+import org.derric_lang.validator.interpreter.structure.Decl;
 import org.derric_lang.validator.interpreter.structure.Structure;
 import org.derric_lang.validator.interpreter.symbol.Symbol;
 import org.eclipse.imp.pdb.facts.IBool;
@@ -41,7 +42,7 @@ public class ExecuteInterpreter {
 
 		try {
 			@SuppressWarnings("unchecked")
-			Interpreter interpreter = new Interpreter(format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"), (List<Structure>)instantiate(globals, PACKAGE + ".structure"));
+			Interpreter interpreter = new Interpreter(format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"), (List<Decl>)instantiate(globals, PACKAGE + ".structure"));
 			interpreter.setStream(ValidatorInputStreamFactory.create(inputPath.getURI()));
 			ParseResult result = interpreter.tryParse();
 			return _types.boolType().make(_values, result.isSuccess());
