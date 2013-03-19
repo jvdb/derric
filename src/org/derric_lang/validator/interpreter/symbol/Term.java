@@ -1,5 +1,7 @@
 package org.derric_lang.validator.interpreter.symbol;
 
+import java.io.IOException;
+
 import org.derric_lang.validator.interpreter.Interpreter;
 
 public class Term extends Symbol {
@@ -11,8 +13,7 @@ public class Term extends Symbol {
 	}
 
     @Override
-    public boolean parse(Interpreter in) {
-        return in.getStructure(_name).parse(in);
+    public boolean parse(Interpreter in) throws IOException {
+    	return in.parseStructure(_name);
     }
-
 }

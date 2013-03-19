@@ -1,5 +1,7 @@
 package org.derric_lang.validator.interpreter.symbol;
 
+import java.io.IOException;
+
 import org.derric_lang.validator.interpreter.Interpreter;
 
 public class Optional extends Symbol {
@@ -11,7 +13,7 @@ public class Optional extends Symbol {
 	}
 
     @Override
-    public boolean parse(Interpreter in) {
+    public boolean parse(Interpreter in) throws IOException {
         _symbol.parse(in);
         return true;
     }

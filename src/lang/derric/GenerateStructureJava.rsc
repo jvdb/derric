@@ -103,7 +103,7 @@ private str makeExpressionMap(str n, map[str, list[VExpression]] m) {
 		for (VExpression v <- m[k]) {
 			switch (v) {
 				case var(str v): ret += "<n>_<i>.add(<v>);";
-				case con(int t): ret += "<n>_<i>.add(<t>);";
+				case con(int t): ret += "<n>_<i>.add(<t>l);";
 				case con(real r): ret += "<n>_<i>.add(<r>f);";
 			}
 		}

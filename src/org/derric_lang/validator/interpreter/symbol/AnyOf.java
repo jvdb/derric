@@ -1,5 +1,6 @@
 package org.derric_lang.validator.interpreter.symbol;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public class AnyOf extends Symbol {
 	}
 
 	@Override
-	public boolean parse(Interpreter in) {
+	public boolean parse(Interpreter in) throws IOException {
 		for (Symbol s : _symbols) {
 			if (s.parse(in)) {
 				return true;

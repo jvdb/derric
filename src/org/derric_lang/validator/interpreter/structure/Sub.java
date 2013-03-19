@@ -1,8 +1,20 @@
 package org.derric_lang.validator.interpreter.structure;
 
-public class Sub extends Expression {
+import java.util.Map;
+
+public class Sub extends ValueExpression {
 	
-	public Sub(Expression l, Expression r) {
+	private final ValueExpression _l;
+	private final ValueExpression _r;
+	
+	public Sub(ValueExpression l, ValueExpression r) {
+		_l = l;
+		_r = r;
+	}
+
+	@Override
+	public Object eval(Map<String, Type> globals, Map<String, Type> locals) {
+		return (Long)_l.eval(globals, locals) - (Long)_r.eval(globals, locals);
 	}
 
 }

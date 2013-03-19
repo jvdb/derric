@@ -8,9 +8,8 @@ import java.util.Map;
 import org.derric_lang.validator.ParseResult;
 import org.derric_lang.validator.Validator;
 import org.derric_lang.validator.interpreter.structure.Decl;
-import org.derric_lang.validator.interpreter.structure.GdeclB;
-import org.derric_lang.validator.interpreter.structure.GdeclV;
 import org.derric_lang.validator.interpreter.structure.Structure;
+import org.derric_lang.validator.interpreter.structure.Type;
 import org.derric_lang.validator.interpreter.symbol.Symbol;
 
 public class Interpreter extends Validator {
@@ -19,22 +18,16 @@ public class Interpreter extends Validator {
 	private final List<Symbol> _sequence;
 	private final List<Structure> _structures;
 	
-	public final Map<String, Long> values;
-	public final Map<String, byte[]> buffers;
+	private final Map<String, Type> _globals;
 
 	public Interpreter(String format, List<Symbol> sequence, List<Structure> structures, List<Decl> globals) {
 		super(format);
 		_format = format;
 		_sequence = sequence;
 		_structures = structures;
-		values = new HashMap<String, Long>();
-		buffers = new HashMap<String, byte[]>();
+		_globals = new HashMap<String, Type>();
 		for (Decl d : globals) {
-			if (d instanceof GdeclV) {
-				values.put(d.getName(), 0l);
-			} else if (d instanceof GdeclB) {
-				buffers.put(d.getName(), null);
-			}
+			_globals.put(d.getName(), d.getType());
 		}
 	}
 
@@ -49,6 +42,7 @@ public class Interpreter extends Validator {
 			if (!s.parse(this)) {
 				return new ParseResult(false, 0, 0, "A", "A B C");
 			}
+			System.out.println("Validated " + s.toString());
 		}
 		return new ParseResult(true, 0, 0, "A", "A B C");
 	}
@@ -58,12 +52,25 @@ public class Interpreter extends Validator {
 		return null;
 	}
 	
-	public Structure getStructure(String name) {
+	public boolean parseStructure(String name) throws IOException {
 	    for (Structure s : _structures) {
 	        if (name.equals(s.getName())) {
-	            return s;
+	        	if (s.parse(_input, _globals)) {
+	        		System.out.println("Structure " + s.getName() + " matched!");
+	        		return true;
+	        	} else {
+	        		return false;
+	        	}
 	        }
 	    }
-	    throw new RuntimeException("Unknown structures requested: " + name);
+	    throw new RuntimeException("Unknown structure requested: " + name);
+	}
+	
+	public void mark() {
+		_input.mark();
+	}
+	
+	public void reset() throws IOException {
+		_input.reset();
 	}
 }

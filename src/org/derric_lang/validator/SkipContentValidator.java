@@ -28,9 +28,9 @@ public class SkipContentValidator implements ContentValidator {
       ValueSet terminators = new ValueSet();
       List<Object> lt = arguments.get("terminator");
       for (Object i : lt) {
-        terminators.addEquals(((Integer) i).longValue());
+        terminators.addEquals(((Long) i).longValue());
       }
-      int terminatorSize = ((Integer) arguments.get("terminatorsize").get(0)).intValue();
+      int terminatorSize = ((Long) arguments.get("terminatorsize").get(0)).intValue();
       boolean includeTerminator = configuration.get("includeterminator").toLowerCase().equals("true") ? true : false;
       Content content = in.includeMarker(includeTerminator).readUntil(terminatorSize, terminators);
       return new Content (content.validated || allowEOF, content.data);
