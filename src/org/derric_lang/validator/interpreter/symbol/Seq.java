@@ -16,10 +16,13 @@ public class Seq extends Symbol {
 
     @Override
     public boolean parse(Interpreter in) throws IOException {
-    	in.mark();
+        if (allowEOFSet() && in.getInput().atEOF()) {
+            return _allowEOF;
+        }
+        in.getInput().mark();
         for (Symbol s : _symbols) {
             if (!s.parse(in)) {
-            	in.reset();
+                in.getInput().reset();
                 return false;
             }
         }

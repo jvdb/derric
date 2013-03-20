@@ -14,6 +14,9 @@ public class Term extends Symbol {
 
     @Override
     public boolean parse(Interpreter in) throws IOException {
+        if (allowEOFSet() && in.getInput().atEOF()) {
+            return _allowEOF;
+        }
     	return in.parseStructure(_name);
     }
 }

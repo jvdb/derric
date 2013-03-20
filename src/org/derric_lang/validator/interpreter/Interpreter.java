@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.derric_lang.validator.ParseResult;
 import org.derric_lang.validator.Validator;
+import org.derric_lang.validator.ValidatorInputStream;
 import org.derric_lang.validator.interpreter.structure.Decl;
 import org.derric_lang.validator.interpreter.structure.Structure;
 import org.derric_lang.validator.interpreter.structure.Type;
@@ -66,11 +67,8 @@ public class Interpreter extends Validator {
 	    throw new RuntimeException("Unknown structure requested: " + name);
 	}
 	
-	public void mark() {
-		_input.mark();
+	public ValidatorInputStream getInput() {
+	    return _input;
 	}
 	
-	public void reset() throws IOException {
-		_input.reset();
-	}
 }

@@ -2,10 +2,12 @@ package org.derric_lang.validator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.derric_lang.validator.interpreter.Interpreter;
 import org.derric_lang.validator.interpreter.structure.Decl;
@@ -55,13 +57,13 @@ public class ExecuteInterpreter {
 	
 	private Object instantiate(IValue val, String pName) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 		if (val instanceof IString) {
-			System.out.println("Constructed String: " + ((IString)val).getValue());
+			//System.out.println("Constructed String: " + ((IString)val).getValue());
 			return ((IString)val).getValue();
 		} else if (val instanceof IInteger) {
-			System.out.println("Constructed Integer: " + ((IInteger)val).intValue());
+			//System.out.println("Constructed Integer: " + ((IInteger)val).intValue());
 			return ((IInteger)val).intValue();
 		} else if (val instanceof IBool) {
-			System.out.println("Constructed Boolean: " + ((IBool)val).getValue());
+			//System.out.println("Constructed Boolean: " + ((IBool)val).getValue());
 			return ((IBool)val).getValue();
 		} else if (val instanceof IList) {
 			IList lval = (IList)val;
@@ -69,7 +71,7 @@ public class ExecuteInterpreter {
 			for (int i = 0; i < lval.length(); i++) {
 				list.add(instantiate(lval.get(i), pName));
 			}
-			System.out.println("Constructed List: " + list);
+			//System.out.println("Constructed List: " + list);
 			return list;
 		} else if (val instanceof IMap) {
 			IMap mval = (IMap)val;
@@ -77,7 +79,7 @@ public class ExecuteInterpreter {
 			for (IValue key : mval) {
 				map.put(instantiate(key, pName), instantiate(mval.get(key), pName));
 			}
-			System.out.println("Constructed Map: " + map);
+			//System.out.println("Constructed Map: " + map);
 			return map;
 		} if (val instanceof ISet) {
 			ISet sval = (ISet)val;
@@ -85,7 +87,7 @@ public class ExecuteInterpreter {
 			for (IValue item : sval) {
 				set.add(instantiate(item, pName));
 			}
-			System.out.println("Constructed Set: " + set);
+			//System.out.println("Constructed Set: " + set);
 			return set;
 		} else if (val instanceof IConstructor) {
 			IConstructor cval = (IConstructor)val;
@@ -107,8 +109,19 @@ public class ExecuteInterpreter {
 				}
 			}
 			if (cons != null) {
-				System.out.println("Constructed Constructor: " + cons);
-				return cons.newInstance(args.toArray());				
+				//System.out.println("Constructed Constructor: " + cons);
+				Object ins = cons.newInstance(args.toArray());
+				Map<String, IValue> ans = cval.getAnnotations();
+				for (String key : ans.keySet()) {
+				    Method[] ms = c.getMethods();
+				    for (Method m : ms) {
+				        if (m.getName().equals("set" + capitalize(key))) {
+		                    m.invoke(ins, new Object[] { instantiate(ans.get(key), pName)});
+		                    break;
+				        }
+				    }
+				}
+				return ins;
 			}
 		}
 		throw new RuntimeException("Unsupported type encountered: " + val.getType());

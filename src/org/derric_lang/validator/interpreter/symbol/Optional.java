@@ -14,6 +14,9 @@ public class Optional extends Symbol {
 
     @Override
     public boolean parse(Interpreter in) throws IOException {
+        if (allowEOFSet() && in.getInput().atEOF()) {
+            return _allowEOF;
+        }
         _symbol.parse(in);
         return true;
     }

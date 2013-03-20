@@ -14,8 +14,14 @@ public class Iter extends Symbol {
 
     @Override
     public boolean parse(Interpreter in) throws IOException {
-        while(_symbol.parse(in));
-        return true;
+        for (;;) {
+            if (allowEOFSet() && in.getInput().atEOF()) {
+                return _allowEOF;
+            }
+            if (!_symbol.parse(in)) {
+                return true;
+            }
+        }
     }
 
 }

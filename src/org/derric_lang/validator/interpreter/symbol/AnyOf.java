@@ -16,6 +16,9 @@ public class AnyOf extends Symbol {
 
 	@Override
 	public boolean parse(Interpreter in) throws IOException {
+	    if (allowEOFSet() && in.getInput().atEOF()) {
+	        return _allowEOF;
+	    }
 		for (Symbol s : _symbols) {
 			if (s.parse(in)) {
 				return true;
