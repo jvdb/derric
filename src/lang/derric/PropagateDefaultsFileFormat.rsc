@@ -42,29 +42,29 @@ private list[Qualifier] resolveOverrides(list[Qualifier] base, list[Qualifier] o
 	for (q <- override) {
 		int id = 6;
 		switch(q) {
-			case unit(str name): {
+			case u:unit(str name): {
 				id = 0;
-				base[id] = unit(name);
+				base[id] = u;
 			}
-			case sign(bool present): {
+			case s:sign(bool present): {
 				id = 1;
-				base[id] = sign(present);
+				base[id] = s;
 			}
-			case endian(str name): {
+			case e:endian(str name): {
 				id = 2;
-				base[id] = endian(name);
+				base[id] = e;
 			}	
-			case strings(str encoding): {
+			case s:strings(str encoding): {
 				id = 3;
-				base[id] = strings(encoding);
+				base[id] = s;
 			}	
-			case \type(str name): {
+			case t:\type(str name): {
 				id = 4;
-				base[id] = \type(name);
+				base[id] = t;
 			}	
-			case size(Expression count): {
+			case s:size(Expression count): {
 				id = 5;
-				base[id] = size(count);
+				base[id] = s;
 			}	
 		}
 		if (id < 6 && tagLocal) {

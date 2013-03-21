@@ -53,29 +53,29 @@ public FileFormat propagateConstants(FileFormat format) {
 
 	EType fold(EType etype) {
 		return bottom-up visit(etype) {
-			case pow(\value(int b), \value(int e)) => \value(pow(b, e))
-			case pow(pow(Expression exp, \value(int a)), \value(int b)) => pow(exp, \value(a*b))
-			case minus(\value(int l), \value(int r)) => \value(l-r)
-			case minus(minus(Expression exp, \value(int a)), \value(int b)) => minus(exp, \value(a+b))
-			case minus(minus(\value(int a), Expression exp), \value(int b)) => minus(\value(a-b), exp)
-			case minus(\value(int a), minus(Expression exp, \value(int b))) => minus(\value(a+b), exp)
-			case minus(\value(int a), minus(\value(int b), Expression exp)) => add(\value(a-b), exp)
-			case times(\value(int l), \value(int r)) => \value(l*r)
-			case times(times(Expression exp, \value(int a)), \value(int b)) => times(exp, \value(a*b))
-			case times(times(\value(int a), Expression exp), \value(int b)) => times(exp, \value(a*b))
-			case times(\value(int a), times(Expression exp, \value(int b))) => times(exp, \value(a*b))
-			case times(\value(int a), times(\value(int b), Expression exp)) => times(exp, \value(a*b))
-			case add(\value(int l), \value(int r)) => \value(l+r)
-			case add(add(Expression exp, \value(int a)), \value(int b)) => add(exp, \value(a+b))
-			case add(add(\value(int a), Expression exp), \value(int b)) => add(exp, \value(a+b))
-			case add(\value(int a), add(Expression exp, \value(int b))) => add(exp, \value(a+b))
-			case add(\value(int a), add(\value(int b), Expression exp)) => add(exp, \value(a+b))
-			case divide(\value(int l), \value(int r)) => \value(l/r)
-			case divide(divide(Expression exp, \value(int a)), \value(int b)) => divide(exp, \value(a*b))
-			case divide(divide(\value(int a), Expression exp), \value(int b)) => divide(\value(a/b), exp)
-			case divide(\value(int a), divide(Expression exp, \value(int b))) => divide(\value(a*b), exp)
-			case divide(\value(int a), divide(\value(int b), Expression exp)) => times(\value(a/b), exp)
-			case negate(\value(int v)) => \value(-v)
+			case p:pow(\value(int b), \value(int e)) => \value(pow(b, e))[@location=p@location]
+			case p:pow(pow(Expression exp, \value(int a)), \value(int b)) => pow(exp, \value(a*b))[@location=p@location]
+			case m:minus(\value(int l), \value(int r)) => \value(l-r)[@location=m@location]
+			case m:minus(minus(Expression exp, \value(int a)), \value(int b)) => minus(exp, \value(a+b))[@location=m@location]
+			case m:minus(minus(\value(int a), Expression exp), \value(int b)) => minus(\value(a-b), exp)[@location=m@location]
+			case m:minus(\value(int a), minus(Expression exp, \value(int b))) => minus(\value(a+b), exp)[@location=m@location]
+			case m:minus(\value(int a), minus(\value(int b), Expression exp)) => add(\value(a-b), exp)[@location=m@location]
+			case t:times(\value(int l), \value(int r)) => \value(l*r)[@location=t@location]
+			case t:times(times(Expression exp, \value(int a)), \value(int b)) => times(exp, \value(a*b))[@location=t@location]
+			case t:times(times(\value(int a), Expression exp), \value(int b)) => times(exp, \value(a*b))[@location=t@location]
+			case t:times(\value(int a), times(Expression exp, \value(int b))) => times(exp, \value(a*b))[@location=t@location]
+			case t:times(\value(int a), times(\value(int b), Expression exp)) => times(exp, \value(a*b))[@location=t@location]
+			case a:add(\value(int l), \value(int r)) => \value(l+r)[@location=a@location]
+			case a:add(add(Expression exp, \value(int a)), \value(int b)) => add(exp, \value(a+b))[@location=a@location]
+			case a:add(add(\value(int a), Expression exp), \value(int b)) => add(exp, \value(a+b))[@location=a@location]
+			case a:add(\value(int a), add(Expression exp, \value(int b))) => add(exp, \value(a+b))[@location=a@location]
+			case a:add(\value(int a), add(\value(int b), Expression exp)) => add(exp, \value(a+b))[@location=a@location]
+			case d:divide(\value(int l), \value(int r)) => \value(l/r)[@location=d@location]
+			case d:divide(divide(Expression exp, \value(int a)), \value(int b)) => divide(exp, \value(a*b))[@location=d@location]
+			case d:divide(divide(\value(int a), Expression exp), \value(int b)) => divide(\value(a/b), exp)[@location=d@location]
+			case d:divide(\value(int a), divide(Expression exp, \value(int b))) => divide(\value(a*b), exp)[@location=d@location]
+			case d:divide(\value(int a), divide(\value(int b), Expression exp)) => times(\value(a/b), exp)[@location=d@location]
+			case n:negate(\value(int v)) => \value(-v)[@location=n@location]
 		}
 	}
 
@@ -90,20 +90,20 @@ public FileFormat propagateConstants(FileFormat format) {
 	return top-down visit(format) {
 		case term(str name, _, _): sname = name;
 		case term(str name, _): sname = name;
-		case field(str name, list[Modifier] modifiers, list[Qualifier] qualifiers, Expression specification): {
+		case f:field(str name, list[Modifier] modifiers, list[Qualifier] qualifiers, Expression specification): {
 			sizeExp = { si | s(si) <- env[sname,name] };
 			if (size(sizeExp) == 1) qualifiers[5].count = getOneFrom(sizeExp);
 			specExp = { sp | v(sp) <- env[sname,name] };
 			if (size(specExp) == 1) {
 				//println("inserting <sname>.<name>: <getOneFrom(specExp)> (size=<getOneFrom(sizeExp)>)");
-				insert(field(name, modifiers, qualifiers, getOneFrom(specExp)));
+				insert(field(name, modifiers, qualifiers, getOneFrom(specExp)))[@location=f@location];
 			}
 		}
-		case field(str name, list[Modifier] modifiers, list[Qualifier] qualifiers, ContentSpecifier specifier): {
+		case f:field(str name, list[Modifier] modifiers, list[Qualifier] qualifiers, ContentSpecifier specifier): {
 			sizeExp = { si | s(si) <- env[sname,name] };
 			if (size(sizeExp) == 1) {
 				qualifiers[5].count = getOneFrom(sizeExp);
-				insert(field(name, modifiers, qualifiers, specifier));
+				insert(field(name, modifiers, qualifiers, specifier))[@location=f@location];
 			}
 		}
 	}

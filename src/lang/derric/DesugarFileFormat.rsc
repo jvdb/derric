@@ -78,7 +78,7 @@ private FileFormat removeInheritance(FileFormat format) {
 	format.terms = for (t <- format.terms) {
 		if (term(str name, str source, list[Field] fields) := t) {
 			sname = name;
-			append term(name, merge(name));
+			append term(name, merge(name))[@location=t@location];
 		} else {
 			append t;
 		}
@@ -93,15 +93,15 @@ private FileFormat removeInheritance(FileFormat format) {
 		}
 	}
 	
-	Expression resolveLength(str struct, str name, bool local) {
+	Expression resolveLength(str struct, str name, bool local, loc l) {
 		set[str] override = (replacements[struct, _]+)[name] & bottom(replacements[struct, _]+);
 		if (isEmpty(override)) {
-			if (local) return lengthOf(name);
-			else return lengthOf(struct, name);
+			if (local) return lengthOf(name)[@location=l];
+			else return lengthOf(struct, name)[@location=l];
 		} else {
 			list[str] names = toList(override);
 			tuple[str head, list[str] tail] result = pop(toList(override));
-			return expandLengthOf(struct, result.head, result.tail, local);
+			return expandLengthOf(struct, result.head, result.tail, local, l);
 		}
 	}
 	
@@ -113,19 +113,19 @@ private FileFormat removeInheritance(FileFormat format) {
 				if (field(str struct, str name) := spec) {
 					list[str] overrides = [ n | <i, n> <- sort([*(replacements<0,2,1,3>[struct,name])]), n in bottom(replacements[struct,_]+)];
 					if (isEmpty(overrides)) {
-						append top:field(struct, name);
+						append top:field(struct, name)[@location=spec@location];
 					} else {
 						for (str n <- overrides) {
-							append top:field(struct, n);
+							append top:field(struct, n)[@location=spec@location];
 						}
 					}
 				} else if (field(str name) := spec) {
 					list[str] overrides = [ n | <i, n> <- sort([*(replacements<0,2,1,3>[sname,name])]), n in bottom(replacements[sname,_]+)];
 					if (isEmpty(overrides)) {
-						append top:field(name);
+						append top:field(name)[@location=spec@location];
 					} else {
 						for (str n <- overrides) {
-							append top:field(n);
+							append top:field(n)[@location=spec@location];
 						}
 					}
 				}
@@ -135,10 +135,10 @@ private FileFormat removeInheritance(FileFormat format) {
 
 	return top-down visit (format) {
 		case term(str name, list[Field] fields): sname = name;
-		case offset(str name) => offset(resolveOffset(sname, name))
-		case offset(str struct, str name) => offset(struct, resolveOffset(struct, name))
-		case lengthOf(str name) => resolveLength(sname, name, true)
-		case lengthOf(str struct, str name) => resolveLength(struct, name, false)
+		case f:offset(str name) => offset(resolveOffset(sname, name))[@location=f@location]
+		case f:offset(str struct, str name) => offset(struct, resolveOffset(struct, name))[@location=f@location]
+		case l:lengthOf(str name) => resolveLength(sname, name, true, l@location)
+		case l:lengthOf(str struct, str name) => resolveLength(struct, name, false, l@location)
 		case tuple[str n, list[Specification] ls] t => <t.n, resolveSpecification(sname, t.ls)>
 	}
 }
@@ -150,14 +150,14 @@ private FileFormat removeMultipleExpressions(FileFormat format) {
 				for (i <- [1..size(specifications)]) {
 					str fname = name;
 					if (i > 1) fname = name + "*<i>";
-					append ret: field(fname, modifiers, qualifiers, specifications[i-1]);
+					append ret: field(fname, modifiers, qualifiers, specifications[i-1])[@location=f@location];
 				}
 			} else append f;
 		}
 	}
 
 	return visit (format) {
-		case term(str name, list[Field] fields) => term(name, expandMultipleExpressions(fields))
+		case t:term(str name, list[Field] fields) => term(name, expandMultipleExpressions(fields))[@location=t@location]
 	}
 }
 
@@ -175,7 +175,7 @@ private FileFormat removeStrings(FileFormat format) {
 				for (i <- [0..size(v)-1]) {
 					str fname = name;
 					if (i > 0) fname = name + "*s<i>";
-					append ret: field(fname, modifiers, qualifiers, \value(ascii[v[i]]));
+					append ret: field(fname, modifiers, qualifiers, \value(ascii[v[i]]))[@location=f@location];
 					count += 1;
 				}
 				expandedStrings += <sname, name, count-1>;
@@ -189,7 +189,7 @@ private FileFormat removeStrings(FileFormat format) {
 				if (!isEmpty(expandedStrings[fsname, fname])) {
 					append top:spec;
 					for (i <- [1..getOneFrom(expandedStrings[fsname, fname])]) {
-						append top:field(fsname, fname + "*s<i>");
+						append top:field(fsname, fname + "*s<i>")[@location=spec@location];
 					}
 				} else {
 					append top:spec;
@@ -198,7 +198,7 @@ private FileFormat removeStrings(FileFormat format) {
 				if (!isEmpty(expandedStrings[sname, fname])) {
 					append top:spec;
 					for (i <- [1..getOneFrom(expandedStrings[sname, fname])]) {
-						append top:field(fname + "*s<i>");
+						append top:field(fname + "*s<i>")[@location=spec@location];
 					}
 				} else {
 					append top:spec;
@@ -210,7 +210,7 @@ private FileFormat removeStrings(FileFormat format) {
 	}
 
 	expanded = visit (format) {
-		case term(str name, list[Field] fields) => term(name, expandStrings(name, fields))
+		case t:term(str name, list[Field] fields) => term(name, expandStrings(name, fields))[@location=t@location]
 	}
 
 	return top-down visit (expanded) {
@@ -234,10 +234,10 @@ private FileFormat fixLengthOf(FileFormat format) {
 	return top-down-break visit (format) {
 		case t:term(str sname, list[Field] fields): {
 			fs = top-down-break visit (fields) {
-				case lengthOf(str name) => expandLengthOf(sname, name, toList(env[sname,name]), true)
-				case lengthOf(str struct, str name) => expandLengthOf(struct, name, toList(env[struct,name]), false)
+				case l:lengthOf(str name) => expandLengthOf(sname, name, toList(env[sname,name]), true, l@location)
+				case l:lengthOf(str struct, str name) => expandLengthOf(struct, name, toList(env[struct,name]), false, l@location)
 			}
-			insert term(sname, fs); 
+			insert term(sname, fs)[@location=t@location];
 		}
 	}
 }
@@ -250,20 +250,20 @@ private FileFormat removeOffset(FileFormat format) {
 			fields = fs;
 			sname = name;
 		}
-		case offset(str name): {
+		case f:offset(str name): {
 			list[str] preceders = getPrecedingFieldNames(name, fields);
-			if (isEmpty(preceders)) insert \value(0);
+			if (isEmpty(preceders)) insert \value(0)[@location=f@location];
 			else {
 				tuple[str head, list[str] tail] result = pop(preceders);
-				insert expandLengthOf(sname, result.head, result.tail, true);
+				insert expandLengthOf(sname, result.head, result.tail, true, f@location);
 			}
 		}
-		case offset(str struct, str name): {
+		case f:offset(str struct, str name): {
 			list[str] preceders = getPrecedingFieldNames(name, getFields(format, struct));
-			if (isEmpty(preceders)) insert \value(0);
+			if (isEmpty(preceders)) insert \value(0)[@location=f@location];
 			else {
 				tuple[str head, list[str] tail] result = pop(preceders);
-				insert expandLengthOf(struct, result.head, result.tail, false);
+				insert expandLengthOf(struct, result.head, result.tail, false, f@location);
 			}
 		}
 	}
@@ -275,15 +275,15 @@ private list[Field] getFields(FileFormat format, str struct) {
 	}
 }
 
-private Expression expandLengthOf(str struct, str head, list[str] tail, bool local) {
+private Expression expandLengthOf(str struct, str head, list[str] tail, bool local, loc l) {
 	//println("expanding <struct>.<head> (tail: <tail>, local: <local>)");
 	if (isEmpty(tail)) {
-		if (local) return lengthOf(head);
-		else return lengthOf(struct, head);
+		if (local) return lengthOf(head)[@location=l];
+		else return lengthOf(struct, head)[@location=l];
 	}
 	tuple[str h,list[str] t] r = takeOneFrom(tail);
-	if (local) return add(lengthOf(head),expandLengthOf(struct, r.h, r.t, local));
-	else return add(lengthOf(struct, head),expandLengthOf(struct, r.h, r.t, local));
+	if (local) return add(lengthOf(head)[@location=l],expandLengthOf(struct, r.h, r.t, local, l))[@location=l];
+	else return add(lengthOf(struct, head),expandLengthOf(struct, r.h, r.t, local, l))[@location=l];
 }
 
 private list[str] getPrecedingFieldNames(str name, list[Field] fields) {
@@ -296,8 +296,8 @@ private list[str] getPrecedingFieldNames(str name, list[Field] fields) {
 
 private FileFormat removeNot(FileFormat format) {
 	return visit (format) {
-		case not(t:term(str name)) => invert(format, {t})
-		case not(anyOf(set[Symbol] symbols)) => invert(format, symbols)
+		case n:not(t:term(str name)) => invert(format, {t})[@location=n@location]
+		case n:not(anyOf(set[Symbol] symbols)) => invert(format, symbols)[@location=n@location]
 	}
 }
 
@@ -305,9 +305,9 @@ public Symbol invert(FileFormat format, set[Symbol] symbols) {
 	exclude = for (term(str n) <- symbols) {
 		append n;
 	}
-	include = for (term(str n, _) <- format.terms) {
+	include = for (t:term(str n, _) <- format.terms) {
 		if (!(n in exclude)) {
-			append term(n);
+			append term(n)[@location=t@location];
 		}
 	}
 	return size(include) > 1 ? anyOf(toSet(include)) : include[0];
