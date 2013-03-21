@@ -315,14 +315,14 @@ public Symbol invert(FileFormat format, set[Symbol] symbols) {
 
 private FileFormat normalizeSequence(FileFormat format) {
 	return top-down-break visit (format) {
-			case term(str name) => anyOf({seq([term(name)])})
-			case optional(term(str name)) => anyOf({seq([term(name)]), seq([])})
-			case iter(term(str name)) => iter(anyOf({seq([term(name)])}))
-			case anyOf(set[Symbol] symbols) => anyOf({ seq([s]) | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s})
-			case iter(anyOf(set[Symbol] symbols)) => iter(anyOf({ seq([s]) | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s}))
-			case seq(list[Symbol] symbols) => anyOf({seq(symbols)} + { s | s <- symbols, seq(list[Symbol] syms) := s})
-			case iter(seq(list[Symbol] symbols)) => iter(anyOf({seq(symbols)}))
-			case optional(seq(list[Symbol] symbols)) => anyOf({seq(symbols), seq([])})
-			case optional(anyOf(set[Symbol] symbols)) => anyOf({ seq([s]) | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s} + {seq([])})
+			case t:term(str name) => anyOf({seq([term(name)[@location=t@location]])[@location=t@location]})[@location=t@location]
+			case p:optional(t:term(str name)) => anyOf({seq([term(name)[@location=t@location]])[@location=p@location], seq([])[@location=p@location]})[@location=p@location]
+			case i:iter(t:term(str name)) => iter(anyOf({seq([term(name)[@location=t@location]])})[@location=i@location])[@location=i@location]
+			case a:anyOf(set[Symbol] symbols) => anyOf({ seq([s])[@location=s@location] | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s})[@location=a@location]
+			case i:iter(a:anyOf(set[Symbol] symbols)) => iter(anyOf({ seq([s])[@location=s@location] | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s})[@location=a@location])[@location=i@location]
+			case s:seq(list[Symbol] symbols) => anyOf({seq(symbols)[@location=s@location]} + { s | s <- symbols, seq(list[Symbol] syms) := s})[@location=s@location]
+			case i:iter(s:seq(list[Symbol] symbols)) => iter(anyOf({seq(symbols)[@location=s@location]})[@location=i@location])[@location=i@location]
+			case p:optional(s:seq(list[Symbol] symbols)) => anyOf({seq(symbols)[@location=s@location], seq([])[@location=p@location]})[@location=p@location]
+			case p:optional(a:anyOf(set[Symbol] symbols)) => anyOf({ seq([s])[@location=s@location] | s <- symbols, !(seq(list[Symbol] syms) := s)} + { s | s <- symbols, seq(list[Symbol] syms) := s} + {seq([])[@location=p@location]})[@location=a@location]
 	}
 }
