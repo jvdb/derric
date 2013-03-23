@@ -46,33 +46,33 @@ public Validator build(FileFormat format) {
 			// when size=Expression, value *must* be noValue() and @refdep and @sizedep are forbidden
 			str lenName = "<struct>_<name>_len";
 			Type lenType = integer(true, little(), 31);
-			if ((f@size)? && global() := f@size) globals += gdeclV(lenType, lenName);
-			else statements += ldeclV(lenType, lenName);
+			if ((f@size)? && global() := f@size) globals += gdeclV(lenType, lenName)[@location=f@location];
+			else statements += ldeclV(lenType, lenName)[@location=f@location];
 			//Expression sizeExp = (qualifiers[0].name == "byte") ? times(qualifiers[5].count, \value(8)) : qualifiers[5].count;
 			//statements += calc(lenName, generateExpression(struct, sizeExp));
-			statements += calc(lenName, generateExpression(struct, qualifiers[5].count));
+			statements += calc(lenName, generateExpression(struct, qualifiers[5].count))[@location=f@location];
 			for (Statement s <- frefs[struct,name,size()]) statements += s;
 			if ((f@ref)?) {
 				str bufName = "<struct>_<name>";
-				if (global() := f@ref) globals += gdeclB(bufName);
-				else statements += ldeclB(bufName);
-				statements += readBuffer(lenName, bufName);
+				if (global() := f@ref) globals += gdeclB(bufName)[@location=f@location];
+				else statements += ldeclB(bufName)[@location=f@location];
+				statements += readBuffer(lenName, bufName)[@location=f@location];
 			} else {
-				statements += skipBuffer(lenName);
+				statements += skipBuffer(lenName)[@location=f@location];
 			}
 		} else if (!isTerminatorSpecification(modifiers)) {
 			// handles value=Expression, size=\value(int), @ref=none/local()/global(), @sizedep=dependency(str) and @refdep=dependency(str)
 			// @size won't occur because of constant size and constant folding and propagation
 			Type t = makeType(qualifiers);
 			if (!(f@ref)? && !(f@refdep)? && !(f@sizedep)? && !hasValueSpecification(f)) {
-				statements += skipValue(t);
+				statements += skipValue(t)[@location=f@location];
 			} else {
 				str valName = "<struct>_<name>";
-				if ((f@ref)? && global() := f@ref) globals += gdeclV(t, valName);
-				else statements += ldeclV(t, valName);
-				statements += readValue(t, valName);
+				if ((f@ref)? && global() := f@ref) globals += gdeclV(t, valName)[@location=f@location];
+				else statements += ldeclV(t, valName)[@location=f@location];
+				statements += readValue(t, valName)[@location=f@location];
 				if (hasValueSpecification(f)) {
-					Statement validateStatement = generateValidateStatement(valName, struct, specification);
+					Statement validateStatement = generateValidateStatement(valName, struct, specification)[@location=f@location];
 					if ((f@refdep)? && dependency(str depName) := f@refdep) frefs += <struct, depName, \value(), validateStatement>;
 					else if ((f@sizedep)? && dependency(str depName) := f@sizedep) frefs += <struct, depName, size(), validateStatement>;
 					else statements += validateStatement;
@@ -84,7 +84,7 @@ public Validator build(FileFormat format) {
 			// no references are allowed
 			Type t = makeType(qualifiers);
 			if (terminator(bool includeTerminator) := getTerminator(modifiers)) {
-				statements += generateReadUntilStatement(t, struct, specification, includeTerminator);
+				statements += generateReadUntilStatement(t, struct, specification, includeTerminator)[@location=f@location];
 			} else {
 				throw "buildStatements: Unsupported field encountered: <f>";
 			}
@@ -107,27 +107,27 @@ public Validator build(FileFormat format) {
 		}
 		// handles @ref=none/local()/global()
 		str valName = "<struct>_<name>";
-		if ((f@ref)? && global() := f@ref) globals += gdeclB(valName);
-		else statements += ldeclB(valName);
+		if ((f@ref)? && global() := f@ref) globals += gdeclB(valName)[@location=f@location];
+		else statements += ldeclB(valName)[@location=f@location];
 		// handles @size=none/local()/global()
 		str lenName = "<struct>_<name>_len";
 		Type lenType = integer(true, little(), 31);
-		if ((f@size)? && global() := f@size) globals += gdeclV(lenType, lenName);
-		else statements += ldeclV(lenType, lenName);
+		if ((f@size)? && global() := f@size) globals += gdeclV(lenType, lenName)[@location=f@location];
+		else statements += ldeclV(lenType, lenName)[@location=f@location];
 		if (hasLocalSize(f)) {
 			// handles size=\value(int) or Expression and @refdep=dependency(str)
 			// @sizedep is not allowed since lengthOf() and offset() are not allowed in expressions in ContentSpecifier arguments
 			//Expression sizeExp = (qualifiers[0].name == "byte") ? times(qualifiers[5].count, \value(8)) : qualifiers[5].count;
-			statements += calc(lenName, generateExpression(struct, qualifiers[5].count));
+			statements += calc(lenName, generateExpression(struct, qualifiers[5].count))[@location=f@location];
 			for (Statement s <- frefs[struct,name,size()]) statements += s;
-			Statement validateStatement = validateContent(valName, lenName, specifier.name, custom, references, false);
+			Statement validateStatement = validateContent(valName, lenName, specifier.name, custom, references, false)[@location=f@location];
 			if ((f@refdep)? && dependency(str depName) := f@refdep) frefs += <struct, depName, \value(), validateStatement>;
 			else statements += validateStatement;
 		} else {
 			// handles size=undefined
 			// no forward references are allowed since the content analysis must run order to reach following fields
-			statements += calc(lenName, con(0));
-			statements += validateContent(valName, lenName, specifier.name, custom, references, lastField(format, struct, f.name));
+			statements += calc(lenName, con(0))[@location=f@location];
+			statements += validateContent(valName, lenName, specifier.name, custom, references, lastField(format, struct, f.name))[@location=f@location];
 		}
 	}
 
@@ -137,10 +137,10 @@ public Validator build(FileFormat format) {
 		for (f <- t.fields) {
 			buildStatements(f);
 		}
-		structures += structure(t.name, statements);
+		structures += structure(t.name, statements)[@location=t@location];
 	}
 
-	return validator(toUpperCase(format.name) + "Validator", format.name, globals, structures);
+	return validator(toUpperCase(format.name) + "Validator", format.name, globals, structures)[@location=format@location];
 }
 
 private VExpression generateSpecification(str struct, Specification spec) {

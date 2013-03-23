@@ -61,3 +61,11 @@ data Type =
 data Endianness =
   little()
 | big();
+
+anno loc Validator@location;
+anno loc Global@location;
+anno loc Structure@location;
+anno loc Statement@location;
+anno loc VExpression@location;
+anno loc Type@location;
+anno loc Endianness@location;
