@@ -23,10 +23,33 @@ public class Seq extends Symbol {
         for (Symbol s : _symbols) {
             if (!s.parse(in)) {
                 in.getInput().reset();
+                in.getCurrent().clearSub();
                 return false;
             }
         }
+        in.getCurrent().fullMatch();
         return true;
     }
-
+	
+	@Override
+	public String toString() {
+		String out = "[";
+		boolean first = true;
+		for (Symbol s : _symbols) {
+			if (first) {
+				first = false;
+			} else {
+				out += " ";
+			}
+			out += s.toString();
+		}
+		out += "]";
+		return out;
+	}
+    
+    @Override
+    public boolean isEmpty() {
+        return _symbols.size() == 0;
+    }
+    
 }

@@ -23,5 +23,15 @@ public class Iter extends Symbol {
             }
         }
     }
-
+    
+    @Override
+    public String toString() {
+    	return _symbol.toString() + "*";
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return _symbol.isEmpty();
+    }
+    
 }

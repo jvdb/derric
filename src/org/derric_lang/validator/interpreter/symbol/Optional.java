@@ -20,5 +20,15 @@ public class Optional extends Symbol {
         _symbol.parse(in);
         return true;
     }
-
+    
+    @Override
+    public String toString() {
+    	return _symbol.toString() + "?";
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return _symbol.isEmpty();
+    }
+    
 }

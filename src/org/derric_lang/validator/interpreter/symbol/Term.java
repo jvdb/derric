@@ -17,6 +17,24 @@ public class Term extends Symbol {
         if (allowEOFSet() && in.getInput().atEOF()) {
             return _allowEOF;
         }
-    	return in.parseStructure(_name);
+        if (in.parseStructure(_name)) {
+        	in.getCurrent().setName(_name);
+        	in.getCurrent().setSequenceLocation(_location);
+        	in.getCurrent().subMatch();
+        	return true;
+        } else {
+        	return false;
+        }
     }
+    
+    @Override
+    public String toString() {
+    	return _name;
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+    
 }

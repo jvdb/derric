@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.derric_lang.validator.ValidatorInputStream;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
 public class Structure {
@@ -14,6 +15,7 @@ public class Structure {
 	private final String _name;
 	private final Map<String, Type> _locals;
 	private final List<Statement> _statements;
+	private ISourceLocation _location;
 	
 	public Structure(String name, ArrayList<Statement> statements) {
 		_name = name;
@@ -26,6 +28,14 @@ public class Structure {
 				_statements.add(s);
 			}
 		}
+	}
+	
+	public void setLocation(ISourceLocation location) {
+		_location = location;
+	}
+	
+	public ISourceLocation getLocation() {
+		return _location;
 	}
 	
 	public String getName() {
