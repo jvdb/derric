@@ -110,8 +110,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 
 		// full bytes can be skipped
 		long skipBytes = skipReq / 8;
-		long skipped = _in.skip(skipBytes);
-		_offset += skipped;
+		long skipped = skip(skipBytes);
 		if (skipped != skipBytes) {
 			return false;
 		}
@@ -119,7 +118,6 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 		// remaining bits are read
 		long remainingBits = skipReq % 8;
 		if (remainingBits > 0) {
-			// TODO: check whether this requires +1 to _offset
 			try {
 				readInteger(remainingBits);
 			} catch (EOFException e) {
@@ -189,8 +187,7 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 		} else if ((bitsReq / 8) > 0) {
 			int i = 0;
 			byte[] data = new byte[(int) bitsReq / 8];
-			int count = _in.read(data);
-			_offset += count;
+			read(data);
 			_lastRead = _offset;
 			//if (count < (bitsReq / 8)) return 0;
 			for (; i < bitsReq / 8; i++) {
@@ -201,9 +198,8 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 			// handle small values within a single byte without data in the
 			// cache
 		} else if (bitsReq > 0) {
-			_cache = _in.read();
+			_cache = read();
 			if (_cache == -1) return 0;
-			_offset += 1;
 			_lastRead = _offset;
 			_bitsLeft = 8;
 			int mask = (int) Math.pow(2, bitsReq) - 1 << _bitsLeft - bitsReq;
@@ -258,8 +254,31 @@ public class ValidatorInputStreamImpl extends ValidatorInputStream {
 		return _cv.validateContent(this, size, name, configuration, arguments, allowEOF);
 	}
 
-	@Override
-	public int read() throws IOException {
-		return _in.read();
-	}
+    @Override
+    public int read() throws IOException {
+        int result = _in.read();
+        if (result >= 0) {
+            _offset++;
+        }
+        return result;
+    }
+    
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int result = _in.read(b, off, len);
+        if (result >= 0) {
+            _offset += result;
+        }
+        return result;
+    }
+    
+    @Override
+    public int read(byte[] b) throws IOException {
+        int result = _in.read(b);
+        if (result >= 0) {
+            _offset += result;
+        }
+        return result;
+    }
+    
 }
