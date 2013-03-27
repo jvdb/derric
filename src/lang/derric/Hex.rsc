@@ -7,6 +7,7 @@ import Set;
 import vis::Figure;
 import vis::Render;
 import vis::KeySym;
+import util::Editors;
 import lang::derric::FileFormat;
 import lang::derric::testparse;
 import lang::derric::Validator;
@@ -42,7 +43,17 @@ public void show(loc derricFile, loc inputFile) {
         lines = [[box(
             text(result[1][i][0]),
             fillColor(Color () { if (i == activeStructure) { return selectColor; } else { return baseColor; } }),
-            onMouseDown(bool (int b, map[KeyModifier, bool] m) { activeStructure = i; return true; }))] | i <- [0..size(result[1])-1]];
+            onMouseDown(bool (int b, map[KeyModifier, bool] m) {
+                if (b == 1) {
+                    activeStructure = i;
+                    return true;
+                } else if (b == 3) {
+                    println("right click! show: <result[1][i][1]>");
+                    edit(result[1][i][1], [highlight(result[1][i][1].begin.line, "Sequence"), highlight(result[1][i][2].begin.line, "Structure")]);
+                    return true;
+                }
+                return false;
+            }))] | i <- [0..size(result[1])-1]];
         return box(
                     grid(
                         lines,
