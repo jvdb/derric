@@ -14,7 +14,8 @@ import lang::derric::Validator;
 import lang::derric::BuildValidator;
 import lang::derric::ExecuteValidator;
 
-str baseColor = "LemonChiffon";
+Color baseColor = color("LemonChiffon");
+Color selectColor = color("Orange");
 
 list[str] chars = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ];
 
@@ -23,8 +24,6 @@ public str toHex16(int i) = toHex8(i / 256) + toHex8(i % 256);
 public str toHex32(int i) = toHex16(i / 65536) + toHex16(i % 65536);
 
 public void show(loc derricFile, loc inputFile) {
-    Color baseColor = color("LemonChiffon");
-    Color selectColor = color("Orange");
     int activeStructure = 0;
     
     FileFormat format = load(derricFile);
@@ -48,7 +47,6 @@ public void show(loc derricFile, loc inputFile) {
                     activeStructure = i;
                     return true;
                 } else if (b == 3) {
-                    println("right click! show: <result[1][i][1]>");
                     edit(result[1][i][1], [highlight(result[1][i][1].begin.line, "Sequence"), highlight(result[1][i][2].begin.line, "Structure")]);
                     return true;
                 }
@@ -79,7 +77,9 @@ public void show(loc derricFile, loc inputFile) {
             line += for (j <- [0 .. 15], (i*16)+j < size(bytes)) {
                 append makeCell((i*16)+j);
             }
-            append line;
+            if (size(line) > 1) {
+            	append line;
+            }
         }
         return vscrollable(
                     box(
