@@ -24,7 +24,7 @@ public str toHex16(int i) = toHex8(i / 256) + toHex8(i % 256);
 public str toHex32(int i) = toHex16(i / 65536) + toHex16(i % 65536);
 
 public void show(loc derricFile, loc inputFile) {
-    int activeStructure = 0;
+    int activeStructure = 100;
     
     FileFormat format = load(derricFile);
     Validator validator = build(format);
@@ -64,12 +64,27 @@ public void show(loc derricFile, loc inputFile) {
                 );
     }
     
-    Figure makeCell(int i) = box(text("<toHex8(bytes[i])>"), size(20, 10), resizable(false), fillColor(Color () {
-        for (s <- [0..size(result[1])-1], s == activeStructure, i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
-            return selectColor;
-        }
-        return baseColor;
-    }));
+    Figure makeCell(int i) = box(text("<toHex8(bytes[i])>"),
+                                 size(20, 10),
+                                 resizable(false),
+                                 fillColor(Color () {
+                                    for (s <- [0..size(result[1])-1], s == activeStructure, i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
+                                        return selectColor;
+                                    }
+                                    return baseColor;
+                                 }),
+                                 onMouseDown(bool (int b, map[KeyModifier, bool] m) {
+                                    for (s <- [0..size(result[1])-1], i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
+                                        if (b == 1) {
+                                            activeStructure = s;
+                                        } else if (b == 3) {
+                                            edit(result[1][s][1], [highlight(result[1][s][1].begin.line, "Sequence"), highlight(result[1][s][2].begin.line, "Structure")]);
+                                        }
+                                        return true;
+                                    }
+                                    activeStructure = 100;
+                                    return true;
+                                 }));
     
     Figure makeHexView() {
         lines = for (i <- [0 .. (size(bytes) / 16)]) {
