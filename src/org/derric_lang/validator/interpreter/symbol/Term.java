@@ -18,7 +18,7 @@ public class Term extends Symbol {
             return _allowEOF;
         }
         if (in.parseStructure(_name)) {
-        	in.getCurrent().setName(_name);
+        	in.getCurrent().setStructureName(_name);
         	in.getCurrent().setSequenceLocation(_location);
         	in.getCurrent().subMatch();
         	return true;

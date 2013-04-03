@@ -9,6 +9,7 @@ import java.util.Map;
 import org.derric_lang.validator.Content;
 import org.derric_lang.validator.SubStream;
 import org.derric_lang.validator.ValidatorInputStream;
+import org.derric_lang.validator.interpreter.Sentence;
 
 public class ValidateContent extends Statement {
 	
@@ -29,7 +30,8 @@ public class ValidateContent extends Statement {
 	}
 
 	@Override
-	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals) throws IOException {
+	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals, Sentence current) throws IOException {
+        long offset = input.lastLocation();
 		SubStream buffer = Expression.getBuffer(_name, globals, locals).getSubStream();
 		Integer size = Expression.getInteger(_sizeName, globals, locals);
 		Map<String, List<Object>> references = new HashMap<String, List<Object>>();
@@ -47,6 +49,7 @@ public class ValidateContent extends Statement {
 		}
 		buffer.fragments.add(content.data);
 		size.setValue(buffer.getLast().length);
+        current.addFieldLocation(getFieldName(), getLocation(), (int)offset, (int)(input.lastLocation() - offset));
 		return true;
 	}
 

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.derric_lang.validator.interpreter.FieldMatch;
 import org.derric_lang.validator.interpreter.Interpreter;
 import org.derric_lang.validator.interpreter.StructureMatch;
 import org.derric_lang.validator.interpreter.structure.Decl;
@@ -43,9 +44,7 @@ public class ExecuteInterpreter {
 
 		try {
 			@SuppressWarnings("unchecked")
-			Interpreter interpreter = new Interpreter(format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"), (List<Decl>)instantiate(globals, PACKAGE + ".structure"));
-			interpreter.setStream(ValidatorInputStreamFactory.create(inputPath.getURI()));
-			interpreter.setInputFile(inputPath.getURI());
+			Interpreter interpreter = new Interpreter(inputPath.getURI(), format.getValue(), (List<Symbol>)instantiate(sequence, PACKAGE + ".symbol"), (List<Structure>)instantiate(structs, PACKAGE + ".structure"), (List<Decl>)instantiate(globals, PACKAGE + ".structure"));
 			ParseResult result = interpreter.tryParse();
 			System.out.println(result);
 			IListWriter lw = _values.listWriter();
@@ -54,7 +53,11 @@ public class ExecuteInterpreter {
 			    ISourceLocation seqLoc = _values.sourceLocation(s.sequenceLocation.getURI(), s.sequenceLocation.getOffset(), s.sequenceLocation.getLength(), s.sequenceLocation.getBeginLine(), s.sequenceLocation.getEndLine(), s.sequenceLocation.getBeginColumn(), s.sequenceLocation.getEndColumn());
                 ISourceLocation strLoc = _values.sourceLocation(s.structureLocation.getURI(), s.structureLocation.getOffset(), s.structureLocation.getLength(), s.structureLocation.getBeginLine(), s.structureLocation.getEndLine(), s.structureLocation.getBeginColumn(), s.structureLocation.getEndColumn());
                 ISourceLocation inpLoc = _values.sourceLocation(s.inputLocation.getURI(), s.inputLocation.getOffset(), s.inputLocation.getLength());
-                lw.append(_values.tuple(name, seqLoc, strLoc, inpLoc));
+                IListWriter flw = _values.listWriter();
+                for (FieldMatch f : s.fields) {
+                    flw.append(_values.tuple(_values.string(f.name), f.sourceLocation, f.inputLocation));
+                }
+                lw.append(_values.tuple(name, seqLoc, strLoc, inpLoc, flw.done()));
 			}
 			return _values.tuple(_values.bool(result.isSuccess()), lw.done());
 		} catch(Exception e) {

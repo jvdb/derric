@@ -69,3 +69,6 @@ anno loc Statement@location;
 anno loc VExpression@location;
 anno loc Type@location;
 anno loc Endianness@location;
+
+anno str Statement@fieldName;
+anno str Global@fieldName;

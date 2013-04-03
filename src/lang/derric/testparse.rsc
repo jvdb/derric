@@ -83,17 +83,19 @@ public void generate(loc path) {
 	}
 }
 
-public void execute(loc derricPath, loc inputPath) {
+public tuple[bool, list[tuple[str, loc, loc, loc, list[tuple[str, loc, loc]]]]] execute(loc derricPath, loc inputPath) {
     try {
         FileFormat format = load(derricPath);
         Validator validator = build(format);
         println("Validator:                <validator>");
         //println("Result:                   <executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputPath)>");
-        tuple[bool, list[tuple[str, loc, loc, loc]]] result = executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputPath);
-        println("Validated: <result[0]>, matches:");
-        for (<name, seql, strl, inpl> <- result[1]) {
+        tuple[bool, list[tuple[str, loc, loc, loc, list[tuple[str, loc, loc]]]]] result = executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputPath);
+        println("Validated: <result[0]>");
+        println("Matches:");
+        for (<name, seql, strl, inpl, flds> <- result[1]) {
         	println("<name>: seq(<seql.offset>, <seql.length>), str(<strl.offset>, <strl.length>), inp(<inpl.offset>, <inpl.length>)");
         }
+        return result;
     } catch str s: {
         println("Error: <s>");
     }

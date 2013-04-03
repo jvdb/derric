@@ -9,6 +9,7 @@ import java.util.Map;
 import org.derric_lang.validator.ParseResult;
 import org.derric_lang.validator.Validator;
 import org.derric_lang.validator.ValidatorInputStream;
+import org.derric_lang.validator.ValidatorInputStreamFactory;
 import org.derric_lang.validator.interpreter.structure.Decl;
 import org.derric_lang.validator.interpreter.structure.Structure;
 import org.derric_lang.validator.interpreter.structure.Type;
@@ -24,8 +25,9 @@ public class Interpreter extends Validator {
 	private Sentence _current;
 	private URI _inputFile;
 
-	public Interpreter(String format, List<Symbol> sequence, List<Structure> structures, List<Decl> globals) {
+	public Interpreter(URI inputFile, String format, List<Symbol> sequence, List<Structure> structures, List<Decl> globals) {
 		super(format);
+		_inputFile = inputFile;
 		_format = format;
 		_sequence = sequence;
 		_structures = structures;
@@ -33,6 +35,7 @@ public class Interpreter extends Validator {
 		for (Decl d : globals) {
 			_globals.put(d.getName(), d.getType());
 		}
+        setStream(ValidatorInputStreamFactory.create(_inputFile));
 	}
 
 	@Override
@@ -42,7 +45,7 @@ public class Interpreter extends Validator {
 
 	@Override
 	protected ParseResult tryParseBody() throws IOException {
-		_current = new Sentence();
+		_current = new Sentence(_inputFile);
 		for (Symbol s : _sequence) {
 			if (!s.parse(this)) {
 			    return new ParseResult(false, _input.lastLocation(), _input.lastRead(), s.toString(), _current.toString());
@@ -58,17 +61,13 @@ public class Interpreter extends Validator {
 		return null;
 	}
 	
-	public void setInputFile(URI inputFile) {
-		_inputFile = inputFile;
-	}
-	
 	public boolean parseStructure(String name) throws IOException {
 		long offset = _input.lastLocation();
 	    for (Structure s : _structures) {
 	        if (name.equals(s.getName())) {
-	        	if (s.parse(_input, _globals)) {
+	        	if (s.parse(_input, _globals, _current)) {
 	        		_current.setStructureLocation(s.getLocation());
-	        		_current.setInputLocation(new SourceLocation(_inputFile, (int)offset, (int)(_input.lastLocation() - offset)));
+	        		_current.setStructureInputLocation((int)offset, (int)(_input.lastLocation() - offset));
 	        		//System.out.println("Structure " + s.getName() + " matched!");
 	        		return true;
 	        	} else {

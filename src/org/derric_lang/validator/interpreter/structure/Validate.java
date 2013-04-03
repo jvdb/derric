@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.derric_lang.validator.ValidatorInputStream;
 import org.derric_lang.validator.ValueSet;
+import org.derric_lang.validator.interpreter.Sentence;
 
 public class Validate extends Statement {
 	
@@ -17,7 +18,7 @@ public class Validate extends Statement {
 	}
 
 	@Override
-	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals) {
+	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals, Sentence current) {
 		long l = Expression.getIntegerValue(_name, globals, locals);
 		ValueSet vs = new ValueSet();
 		for (ValueSetExpression vse : _options) {

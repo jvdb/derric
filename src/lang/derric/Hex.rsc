@@ -15,7 +15,8 @@ import lang::derric::BuildValidator;
 import lang::derric::ExecuteValidator;
 
 Color baseColor = color("LemonChiffon");
-Color selectColor = color("Orange");
+Color selectStructureColor = color("Orange");
+Color selectFieldColor = color("LightBlue");
 
 list[str] chars = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ];
 
@@ -25,15 +26,19 @@ public str toHex32(int i) = toHex16(i / 65536) + toHex16(i % 65536);
 
 public void show(loc derricFile, loc inputFile) {
     int activeStructure = 100;
+    int activeField = 100;
     
     FileFormat format = load(derricFile);
     Validator validator = build(format);
     println("Validator:                <validator>");
-    tuple[bool, list[tuple[str, loc, loc, loc]]] result = executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputFile);
+    tuple[bool, list[tuple[str, loc, loc, loc, list[tuple[str, loc, loc]]]]] result = executeValidator(validator.format, format.sequence, validator.structs, validator.globals, inputFile);
     println("Validated: <result[0]>");
     println("Matches:");
-    for (<name, seql, strl, inpl> <- result[1]) {
+    for (<name, seql, strl, inpl, flds> <- result[1]) {
         println("<name>: seq(<seql.offset>, <seql.length>), str(<strl.offset>, <strl.length>), inp(<inpl.offset>, <inpl.length>)");
+        for (<fname, fsl, fil> <- flds) {
+            println("  <fname>: src(<fsl.offset>, <fsl.length>), inp(<fil.offset>, <fil.length>)");
+        }
     }
     
     list[int] bytes = readFileBytes(inputFile);
@@ -41,10 +46,11 @@ public void show(loc derricFile, loc inputFile) {
     Figure makeStructureView() {
         lines = [[box(
             text(result[1][i][0]),
-            fillColor(Color () { if (i == activeStructure) { return selectColor; } else { return baseColor; } }),
+            fillColor(Color () { if (i == activeStructure) { return selectStructureColor; } else { return baseColor; } }),
             onMouseDown(bool (int b, map[KeyModifier, bool] m) {
                 if (b == 1) {
                     activeStructure = i;
+                    activeField = 100;
                     return true;
                 } else if (b == 3) {
                     edit(result[1][i][1], [highlight(result[1][i][1].begin.line, "Sequence"), highlight(result[1][i][2].begin.line, "Structure")]);
@@ -64,12 +70,42 @@ public void show(loc derricFile, loc inputFile) {
                 );
     }
     
+    Figure makeFieldView() {
+	    	return box(
+	    				computeFigure(Figure () {
+	    				    if (activeStructure < size(result[1])) {
+		    					lines = [[box(
+		    						text(result[1][activeStructure][4][j][0]),
+		    						fillColor(Color () { if (j == activeField) { return selectFieldColor; } else { return baseColor; } }),
+		    						onMouseDown(bool (int b, map[KeyModifier, bool] m) {
+		    							activeField = j;
+		    							return true;
+		    						}))] | j <- [0..size(result[1][activeStructure][4])-1]];
+		    					return grid(
+		    								lines,
+		    								left(),
+		    								top()
+		    							);
+					    	} else {
+					    		return space();
+					    	}
+	    				}),
+	    				fillColor(baseColor),
+	    				size(1, 1),
+	    				resizable(false)
+	    			);
+    }
+    
     Figure makeCell(int i) = box(text("<toHex8(bytes[i])>"),
                                  size(20, 10),
                                  resizable(false),
                                  fillColor(Color () {
                                     for (s <- [0..size(result[1])-1], s == activeStructure, i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
-                                        return selectColor;
+                                    	if (activeField < size(result[1][s][4]) && i >= result[1][s][4][activeField][2].offset && i < result[1][s][4][activeField][2].offset+result[1][s][4][activeField][2].length) {
+                                    		return selectFieldColor;
+                                    	} else {
+                                        	return selectStructureColor;
+                                    	}
                                     }
                                     return baseColor;
                                  }),
@@ -112,6 +148,7 @@ public void show(loc derricFile, loc inputFile) {
     }
     
     Figure l = makeStructureView();
+    Figure m = makeFieldView();
 	Figure r = makeHexView();
-	render(grid([[l, r]]));
+	render(grid([[l, m, r]]));
 }

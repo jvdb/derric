@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.derric_lang.validator.ValidatorInputStream;
+import org.derric_lang.validator.interpreter.Sentence;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
@@ -42,10 +43,10 @@ public class Structure {
 	    return _name;
 	}
 	
-	public boolean parse(ValidatorInputStream input, Map<String, Type> globals) throws IOException {
+	public boolean parse(ValidatorInputStream input, Map<String, Type> globals, Sentence current) throws IOException {
 		long markStart = input.lastLocation();
 		for (Statement s : _statements) {
-			if (!s.eval(input, globals, _locals)) {
+			if (!s.eval(input, globals, _locals, current)) {
 				input.skip(markStart - input.lastLocation());
 				return false;
 			}

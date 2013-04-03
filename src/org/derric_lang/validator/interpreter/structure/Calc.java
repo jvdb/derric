@@ -3,6 +3,7 @@ package org.derric_lang.validator.interpreter.structure;
 import java.util.Map;
 
 import org.derric_lang.validator.ValidatorInputStream;
+import org.derric_lang.validator.interpreter.Sentence;
 
 public class Calc extends Statement {
 	
@@ -15,7 +16,7 @@ public class Calc extends Statement {
 	}
 	
 	@Override
-	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals) {
+	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals, Sentence current) {
 		Type type = null;
 		if (globals.containsKey(_name)) {
 			type = globals.get(_name);

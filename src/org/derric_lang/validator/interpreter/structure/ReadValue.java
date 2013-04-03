@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.derric_lang.validator.ByteOrder;
 import org.derric_lang.validator.ValidatorInputStream;
+import org.derric_lang.validator.interpreter.Sentence;
 
 public class ReadValue extends Statement {
 	
@@ -17,7 +18,8 @@ public class ReadValue extends Statement {
 	}
 
 	@Override
-	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals) throws IOException {
+	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals, Sentence current) throws IOException {
+        long offset = input.lastLocation();
 		Integer value = Expression.getInteger(_name, globals, locals);
 		if (_type.getSign()) {
 			input.signed();
@@ -30,6 +32,7 @@ public class ReadValue extends Statement {
 			input.byteOrder(ByteOrder.LITTLE_ENDIAN);
 		}
 		value.setValue(input.readInteger(_type.getBits()));
+        current.addFieldLocation(getFieldName(), getLocation(), (int)offset, (int)(input.lastLocation() - offset));
 		return true;
 	}
 

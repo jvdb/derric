@@ -7,6 +7,7 @@ import java.util.Map;
 import org.derric_lang.validator.ByteOrder;
 import org.derric_lang.validator.ValidatorInputStream;
 import org.derric_lang.validator.ValueSet;
+import org.derric_lang.validator.interpreter.Sentence;
 
 public class ReadUntil extends Statement {
 	
@@ -21,7 +22,8 @@ public class ReadUntil extends Statement {
 	}
 
 	@Override
-	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals) throws IOException {
+	public boolean eval(ValidatorInputStream input, Map<String, Type> globals, Map<String, Type> locals, Sentence current) throws IOException {
+        long offset = input.lastLocation();
 		if (_type.getSign()) {
 			input.signed();
 		} else {
@@ -37,7 +39,11 @@ public class ReadUntil extends Statement {
 		for (ValueSetExpression vse : _options) {
 			vs = vse.eval(vs, globals, locals);
 		}
-		return input.readUntil(_type.getBits(), vs).validated;
+		boolean result = input.readUntil(_type.getBits(), vs).validated;
+		if (result) {
+		    current.addFieldLocation(getFieldName(), getLocation(), (int)offset, (int)(input.lastLocation() - offset));
+		}
+		return result;
 	}
 
 }
