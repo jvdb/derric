@@ -77,8 +77,12 @@ public void show(loc derricFile, loc inputFile) {
                     text(result[1][activeStructure][4][j][0]),
 	    		    fillColor(Color () { if (j == activeField) { return selectFieldColor; } else { return baseColor; } }),
 	    		    onMouseDown(bool (int b, map[KeyModifier, bool] m) {
-	    		        activeField = j;
-	    			   return true;
+                        if (b == 1) {
+                            activeField = j;
+                        } else if (b == 3) {
+                            edit(result[1][activeStructure][1], [highlight(result[1][activeStructure][1].begin.line, "Sequence"), highlight(result[1][activeStructure][2].begin.line, "Structure"), highlight(result[1][activeStructure][4][j][1].begin.line, "Field")]);
+                        }
+	    			    return true;
 	    		    }))] | j <- [0..size(result[1][activeStructure][4])-1]];
 	    	return box(
                 grid(
@@ -98,34 +102,36 @@ public void show(loc derricFile, loc inputFile) {
         });
     }
     
-    Figure makeCell(int i) = box(text("<toHex8(bytes[i])>"),
-                                 size(20, 10),
-                                 resizable(false),
-                                 fillColor(Color () {
-                                    for (s <- [0..size(result[1])-1], s == activeStructure, i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
-                                    	if (activeField < size(result[1][s][4]) && i >= result[1][s][4][activeField][2].offset && i < result[1][s][4][activeField][2].offset+result[1][s][4][activeField][2].length) {
-                                    		return selectFieldColor;
-                                    	} else {
-                                        	return selectStructureColor;
-                                    	}
-                                    }
-                                    return baseColor;
-                                 }),
-                                 onMouseDown(bool (int b, map[KeyModifier, bool] m) {
-                                    for (s <- [0..size(result[1])-1], i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
-                                        for (f <- [0..size(result[1][s][4])-1], i >= result[1][s][4][f][2].offset, i < result[1][s][4][f][2].offset+result[1][s][4][f][2].length) {
-                                            if (b == 1) {
-                                                activeStructure = s;
-                                                activeField = f;
-                                            } else if (b == 3) {
-                                                edit(result[1][s][1], [highlight(result[1][s][1].begin.line, "Sequence"), highlight(result[1][s][2].begin.line, "Structure"), highlight(result[1][s][4][f][1].begin.line, "Field")]);
-                                            }
-                                            return true;
-                                        }
-                                    }
-                                    activeStructure = 100;
-                                    return true;
-                                 }));
+    Figure makeCell(int i) =
+        box(text("<toHex8(bytes[i])>"),
+            size(20, 10),
+            resizable(false),
+            fillColor(Color () {
+                for (s <- [0..size(result[1])-1], s == activeStructure, i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
+                    if (activeField < size(result[1][s][4]) && i >= result[1][s][4][activeField][2].offset && i < result[1][s][4][activeField][2].offset+result[1][s][4][activeField][2].length) {
+                	   return selectFieldColor;
+                	} else {
+                    	return selectStructureColor;
+                	}
+                }
+                return baseColor;
+            }),
+            onMouseDown(bool (int b, map[KeyModifier, bool] m) {
+                for (s <- [0..size(result[1])-1], i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
+                    for (f <- [0..size(result[1][s][4])-1], i >= result[1][s][4][f][2].offset, i < result[1][s][4][f][2].offset+result[1][s][4][f][2].length) {
+                        if (b == 1) {
+                            activeStructure = s;
+                            activeField = f;
+                        } else if (b == 3) {
+                            edit(result[1][s][1], [highlight(result[1][s][1].begin.line, "Sequence"), highlight(result[1][s][2].begin.line, "Structure"), highlight(result[1][s][4][f][1].begin.line, "Field")]);
+                        }
+                        return true;
+                    }
+                }
+                activeStructure = 100;
+                return true;
+            })
+        );
     
     Figure makeHexView() {
         lines = for (i <- [0 .. (size(bytes) / 16)]) {
