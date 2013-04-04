@@ -113,12 +113,15 @@ public void show(loc derricFile, loc inputFile) {
                                  }),
                                  onMouseDown(bool (int b, map[KeyModifier, bool] m) {
                                     for (s <- [0..size(result[1])-1], i >= result[1][s][3].offset, i < result[1][s][3].offset+result[1][s][3].length) {
-                                        if (b == 1) {
-                                            activeStructure = s;
-                                        } else if (b == 3) {
-                                            edit(result[1][s][1], [highlight(result[1][s][1].begin.line, "Sequence"), highlight(result[1][s][2].begin.line, "Structure")]);
+                                        for (f <- [0..size(result[1][s][4])-1], i >= result[1][s][4][f][2].offset, i < result[1][s][4][f][2].offset+result[1][s][4][f][2].length) {
+                                            if (b == 1) {
+                                                activeStructure = s;
+                                                activeField = f;
+                                            } else if (b == 3) {
+                                                edit(result[1][s][1], [highlight(result[1][s][1].begin.line, "Sequence"), highlight(result[1][s][2].begin.line, "Structure"), highlight(result[1][s][4][f][1].begin.line, "Field")]);
+                                            }
+                                            return true;
                                         }
-                                        return true;
                                     }
                                     activeStructure = 100;
                                     return true;
