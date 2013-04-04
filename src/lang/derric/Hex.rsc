@@ -71,29 +71,31 @@ public void show(loc derricFile, loc inputFile) {
     }
     
     Figure makeFieldView() {
+        return computeFigure(Figure () {
+    	    if (activeStructure < size(result[1])) {
+                lines = [[box(
+                    text(result[1][activeStructure][4][j][0]),
+	    		    fillColor(Color () { if (j == activeField) { return selectFieldColor; } else { return baseColor; } }),
+	    		    onMouseDown(bool (int b, map[KeyModifier, bool] m) {
+	    		        activeField = j;
+	    			   return true;
+	    		    }))] | j <- [0..size(result[1][activeStructure][4])-1]];
 	    	return box(
-	    				computeFigure(Figure () {
-	    				    if (activeStructure < size(result[1])) {
-		    					lines = [[box(
-		    						text(result[1][activeStructure][4][j][0]),
-		    						fillColor(Color () { if (j == activeField) { return selectFieldColor; } else { return baseColor; } }),
-		    						onMouseDown(bool (int b, map[KeyModifier, bool] m) {
-		    							activeField = j;
-		    							return true;
-		    						}))] | j <- [0..size(result[1][activeStructure][4])-1]];
-		    					return grid(
-		    								lines,
-		    								left(),
-		    								top()
-		    							);
-					    	} else {
-					    		return space();
-					    	}
-	    				}),
-	    				fillColor(baseColor),
-	    				size(1, 1),
-	    				resizable(false)
-	    			);
+                grid(
+                    lines,
+					left(),
+					top()
+				),
+                fillColor(baseColor),
+                size(1, 1),
+                resizable(false));
+            } else {
+                return space(
+                    size(1, 1),
+                    resizable(false)
+                );
+            }
+        });
     }
     
     Figure makeCell(int i) = box(text("<toHex8(bytes[i])>"),
