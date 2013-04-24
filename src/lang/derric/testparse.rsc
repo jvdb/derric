@@ -131,11 +131,11 @@ public FileFormat load(loc path) {
     return format;
 }
 
-private void writeDerric(FileFormat format) {
+public void writeDerric(FileFormat format) {
     writeFile(|rascal://<javaPathPrefix><format.name><derricFileSuffix>|, lang::derric::GenerateDerric::generate(format));
 }
 
-private void writeJava(FileFormat format, Validator validator) {
+public void writeJava(FileFormat format, Validator validator) {
     println("Validator:                <validator>");
     writeFile(|rascal://<javaPathPrefix><toUpperCase(format.name)><javaClassSuffix><javaFileSuffix>|, lang::derric::GenerateJava::generate(format.sequence, format.extensions[0], validator, javaPackageName));
 }
