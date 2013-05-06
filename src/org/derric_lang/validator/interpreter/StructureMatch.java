@@ -20,4 +20,9 @@ public class StructureMatch {
 		this.fields = fields;
 	}
 	
+	@Override
+	public String toString() {
+	    return name;
+	}
+	
 }

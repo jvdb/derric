@@ -13,5 +13,10 @@ public class FieldMatch {
         this.sourceLocation = sourceLocation;
         this.inputLocation = inputLocation;
     }
+    
+    @Override
+    public String toString() {
+        return name;
+    }
 
 }
