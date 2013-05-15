@@ -42,7 +42,9 @@ lexical String = @category="Constant" "\"" ![\"]*  "\"";
 lexical Comment = @category="Comment" "/*" CommentChar* "*/";
 lexical CommentChar = ![*] | [*] !>> [/];
 
-start syntax Format = @Foldable "format" Id "extension" Id+ Defaults Sequence seq Structures structs;
+lexical FormatHead = "format";
+lexical ExtensionHead = "extension";
+start syntax Format = @Foldable FormatHead Id ExtensionHead Id+ Defaults Sequence seq Structures structs;
 
 syntax Defaults = @Foldable FormatSpecifier*;
 syntax FormatSpecifier = FixedFormatSpecifierKeyword FixedFormatSpecifierValue
@@ -55,7 +57,8 @@ syntax FixedFormatSpecifierValue = "big" | "little"
                                  | "integer" | "float" | "string";
 syntax VariableFormatSpecifierKeyword = "size";
 
-syntax Sequence = @Foldable "sequence" SequenceSymbol*;
+lexical SequenceHead = "sequence";
+syntax Sequence = @Foldable SequenceHead SequenceSymbol*;
 syntax SequenceSymbol = "(" SequenceSymbol+ ")"
                       | "[" SequenceSymbol* "]"
                       | right "!" SequenceSymbol
@@ -63,7 +66,8 @@ syntax SequenceSymbol = "(" SequenceSymbol+ ")"
                       | SequenceSymbol "?"
                       | struct: Id;
 
-syntax Structures = @Foldable "structures" Structure*;
+lexical StructuresHead = "structures";
+syntax Structures = @Foldable StructuresHead Structure*;
 syntax Structure = @Foldable StructureHead head "{" Field* fields "}";
 syntax StructureHead = Id name
                      | Id name "=" Id super;

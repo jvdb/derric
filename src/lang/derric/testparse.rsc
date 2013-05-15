@@ -101,6 +101,37 @@ public tuple[bool, list[tuple[str, loc, loc, loc, list[tuple[str, loc, loc]]]]] 
     }
 }
 
+public tuple[bool, map[str, set[loc]]] getSyntaxMap(str source) {
+	Tree t;
+	try t = parse(#start[Format], source).top;
+	catch: return <false, ()>;
+	if (!(appl(prod(_, _, _), _) := t)) {
+		return <false, ()>;
+	}
+	map[str, set[loc]] m = ();
+	void add(str s, loc l) {
+		if (s in m) {
+			m[s] = m[s] + l;
+		} else {
+			m += (s:{l});
+		}
+	}
+	visit (t) {
+        case Comment p: add("comment", p@\loc);
+		case ContentSpecifierId p: add("callback", p@\loc);
+		case BuiltIn p: add("keyword", p@\loc);
+		case FormatHead f: add("keyword", f@\loc);
+		case ExtensionHead e: add("keyword", e@\loc);
+		case SequenceHead s: add("keyword", s@\loc);
+		case StructuresHead s: add("keyword", s@\loc);
+		case ValueModifier v: add("keyword", v@\loc);
+		case FixedFormatSpecifierKeyword s: add("keyword", s@\loc);
+		case FixedFormatSpecifierValue s: add("keyword", s@\loc);
+		case VariableFormatSpecifierKeyword s: add("keyword", s@\loc);
+	}
+	return <true, m>;
+}
+
 public FileFormat load(loc path) {
 	FileFormat format = build(parse(#start[Format], path).top);
 	println("Imploded AST:             <format>");
